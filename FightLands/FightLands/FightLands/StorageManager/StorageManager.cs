@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FightLands
 {
-    class UserInterfaceManager
+    static class StorageManager
     {
     }
 }

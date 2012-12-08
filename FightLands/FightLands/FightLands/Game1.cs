@@ -17,11 +17,15 @@ namespace FightLands
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+
+        Point resolution;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            resolution = new Point(800, 600);
+            graphics.PreferredBackBufferWidth = resolution.X;
+            graphics.PreferredBackBufferHeight = resolution.Y;
             Content.RootDirectory = "Content";
         }
 
@@ -33,7 +37,10 @@ namespace FightLands
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            PlayerManager.Initialize();
+            AssetManager.Initialize(Content);
+            Graphics.Initialize(graphics.GraphicsDevice, resolution);
+            UserInterfaceManager.Initialize();
 
             base.Initialize();
         }
@@ -44,10 +51,8 @@ namespace FightLands
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            new GameManager(UserInterfaceManager.baseWorld);
+            Graphics.baseCamera = UserInterfaceManager.baseCamera;
         }
 
         /// <summary>
@@ -56,7 +61,7 @@ namespace FightLands
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+
         }
 
         /// <summary>
@@ -66,12 +71,12 @@ namespace FightLands
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            UpdateState state = new UpdateState();
+            state.time = gameTime;
+            state.elapsedTime = ((float)gameTime.ElapsedGameTime.Milliseconds)/1000f;
 
-            // TODO: Add your update logic here
-
+            PlayerManager.Update(state);
+            UserInterfaceManager.Update(state);
             base.Update(gameTime);
         }
 
@@ -81,9 +86,8 @@ namespace FightLands
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
+            Graphics.Draw();
+            Graphics.Render();
 
             base.Draw(gameTime);
         }
