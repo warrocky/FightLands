@@ -7,6 +7,6 @@ namespace FightLands
 {
     interface Controlable
     {
-        public void Interact(Player.PlayerKeyboard actionKeyboard);
+        void Interact(Player.PlayerKeyboard actionKeyboard);
     }
 }

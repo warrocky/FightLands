@@ -32,8 +32,11 @@ namespace FightLands
         public class PlayerKeyboard
         {
             public Dictionary<ActionKeyType, ActionKey> keyboard;
+
             public PlayerKeyboard()
             {
+                keyboard = new Dictionary<ActionKeyType, ActionKey>();
+
                 for (int i = 0; i < Enum.GetValues(typeof(ActionKeyType)).Length; i++)
                 {
                     keyboard.Add((ActionKeyType)i, new ActionKey());
