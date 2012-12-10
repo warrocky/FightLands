@@ -1,7 +1,0 @@
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLands\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLands\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLands\bin\x86\Debug\FightLands.exe
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLands\bin\x86\Debug\FightLands.pdb
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLands\obj\x86\Debug\FightLands.exe
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLands\obj\x86\Debug\FightLands.pdb
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLands\bin\x86\Debug\Content\defaultFont.xnb
