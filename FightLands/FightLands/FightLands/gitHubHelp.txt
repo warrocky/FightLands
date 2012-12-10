@@ -1,1 +1,6 @@
+
+How to Untrack Files that are already being tracked:
+
+Delete files, commit, synch, run this code on bash ("file/folder" = Rakefile)
+
 git filter-branch --index-filter 'git rm --cached --ignore-unmatch Rakefile'
