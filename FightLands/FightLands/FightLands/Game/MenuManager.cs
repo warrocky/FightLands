@@ -24,37 +24,83 @@ namespace FightLands
             if (gameManager.gameState == GameManager.gameManagerState.inMenu)
             {
                 if (mainMenu == null)
-                    mainMenu = new MainMenu(this);
+                {
+                    mainMenu = new MainMenu(gameManager);
+                    gameManager.player1.addControlable(mainMenu);
+                }
             }
             else
                 if (mainMenu != null)
-                    mainMenu.destroy();
+                {
+                    gameManager.player1.removeControlable(mainMenu);
+                    mainMenu = null;
+                }
         }
 
-        public class MainMenu : GameObject
+        public class MainMenu : Menu<MainMenu.DefaultEntry>
         {
-            MenuManager manager;
+            GameManager manager;
 
-            DrawableText startGame;
-            DrawableText exitGame;
-
-            int selectedOption;
-
-            public MainMenu(MenuManager manager)
+            public MainMenu(GameManager manager)
                 :base(manager.world)
             {
                 this.manager = manager;
 
-                AssetSpriteFont font = AssetManager.getAssetSpriteFont("menuHeaderFont");
-                startGame = new DrawableText(font, this, "Start Game", Color.Gray);
-                startGame.position.Y = -100;
-                exitGame = new DrawableText(font, this, "Quit Game", Color.Gray);
-                exitGame.position.Y = 100;
+                entries.Add(new QuitGame(manager));
+                entries.Add(new StartGame(manager));
+
+                entries[0].position = new Vector2(0, 100);
+                entries[1].position = new Vector2(0, -100);
             }
-            public override void Draw(DrawState state)
+
+            public class DefaultEntry : GameObject, MenuEntry
             {
-                startGame.Draw(state);
-                exitGame.Draw(state);
+                protected GameManager manager;
+                protected DrawableText texture;
+
+                public DefaultEntry(GameManager manager, String text)
+                    :base(manager.world)
+                {
+                    this.manager = manager;
+
+                    AssetSpriteFont font = AssetManager.getAssetSpriteFont("menuHeaderFont");
+                    texture = new DrawableText(font, this, text, Color.Gray);
+                }
+                public virtual void Select()
+                {}
+                public void Focus()
+                {
+                    texture.filter = Color.White;
+                }
+                public void Unfocus()
+                {
+                    texture.filter = Color.Gray;
+                }
+
+                public override void Draw(DrawState state)
+                {
+                    texture.Draw(state);
+                }
+            }
+            public class StartGame : DefaultEntry
+            {
+                public StartGame(GameManager manager)
+                    :base(manager, "Start Game")
+                {}
+                public override void Select()
+                {
+                    base.Select();
+                }
+            }
+            public class QuitGame : DefaultEntry
+            {
+                public QuitGame(GameManager manager)
+                    : base(manager, "Quit game")
+                {}
+                public override void Select()
+                {
+                    manager.QuitGame();
+                }
             }
         }
     }

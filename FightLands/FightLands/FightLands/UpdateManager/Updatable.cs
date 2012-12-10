@@ -5,8 +5,8 @@ using System.Text;
 
 namespace FightLands
 {
-    interface Controlable
+    interface Updatable
     {
-        void Interact(PlayerKeyboard actionKeyboard);
+        void Update(UpdateState state);
     }
 }

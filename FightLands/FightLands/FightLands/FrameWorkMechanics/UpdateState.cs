@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace FightLands
 {
@@ -11,10 +12,23 @@ namespace FightLands
     /// </summary>
     class UpdateState
     {
-        public GameTime time;
+        static int currentID;
+
+        public UpdateState(GameTime time, KeyboardState keybState)
+        {
+            ID = currentID;
+            currentID++;
+            this.time = time;
+            elapsedTime = ((float)time.ElapsedGameTime.Milliseconds)/1000f;
+            keyboardState = keybState;
+        }
+        public readonly int ID;
+        public readonly GameTime time;
         /// <summary>
         /// The elapsed float time in seconds.
         /// </summary>
-        public float elapsedTime;
+        public readonly float elapsedTime;
+
+        public readonly KeyboardState keyboardState;
     }
 }

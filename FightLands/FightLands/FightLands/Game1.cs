@@ -19,6 +19,8 @@ namespace FightLands
         GraphicsDeviceManager graphics;
 
         Point resolution;
+        KeyboardState previousKeyboardState;
+        KeyboardState currentKeyboardState;
 
         public Game1()
         {
@@ -37,6 +39,7 @@ namespace FightLands
         /// </summary>
         protected override void Initialize()
         {
+            Statistics.Initialize();
             PlayerManager.Initialize();
             AssetManager.Initialize(Content);
             Graphics.Initialize(graphics.GraphicsDevice, resolution);
@@ -51,7 +54,8 @@ namespace FightLands
         /// </summary>
         protected override void LoadContent()
         {
-            new GameManager(UserInterfaceManager.baseWorld);
+            Graphics.LoadContent();
+            new GameManager(UserInterfaceManager.baseWorld, this);
             Graphics.baseCamera = UserInterfaceManager.baseCamera;
         }
 
@@ -71,12 +75,18 @@ namespace FightLands
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            UpdateState state = new UpdateState();
-            state.time = gameTime;
-            state.elapsedTime = ((float)gameTime.ElapsedGameTime.Milliseconds)/1000f;
+            previousKeyboardState = currentKeyboardState;
+            currentKeyboardState = Keyboard.GetState();
+
+            if (previousKeyboardState.IsKeyUp(Keys.W) && currentKeyboardState.IsKeyDown(Keys.W))
+                Statistics.keyPresses++;
+
+            UpdateState state = new UpdateState(gameTime, currentKeyboardState);
 
             PlayerManager.Update(state);
             UserInterfaceManager.Update(state);
+
+            Statistics.Update(state);
             base.Update(gameTime);
         }
 
@@ -89,7 +99,86 @@ namespace FightLands
             Graphics.Draw();
             Graphics.Render();
 
+            Statistics.drawCount++;
             base.Draw(gameTime);
+        }
+    }
+
+    static class Statistics
+    {
+        public static int updateLogLength = 60;
+        public static List<UpdateStatistics> lastUpdateStatistics;
+        public static float updatesPerSec;
+
+        public static int drawLogLength = 4;
+        public static int drawCount;
+        static int second;
+        public static List<DrawStatistics> LastDrawStatistics;
+        public static float fps;
+
+        public static int keyPresses;
+
+        public static void Initialize()
+        {
+            lastUpdateStatistics = new List<UpdateStatistics>();
+            LastDrawStatistics = new List<DrawStatistics>();
+        }
+        public static void Update(UpdateState state)
+        {
+            UpdateStatistics cycleStatistics = new UpdateStatistics();
+            cycleStatistics.timeElapsed = state.elapsedTime;
+            lastUpdateStatistics.Add(cycleStatistics);
+
+            if (lastUpdateStatistics.Count >= updateLogLength)
+                lastUpdateStatistics.RemoveAt(0);
+
+            float timesum = 0;
+            for (int i = 0; i < lastUpdateStatistics.Count; i++)
+                timesum += lastUpdateStatistics[i].timeElapsed;
+
+            updatesPerSec = 1f/(timesum / lastUpdateStatistics.Count);
+
+            //DrawStatistics
+            if (second != state.time.TotalGameTime.Seconds)
+            {
+                second = state.time.TotalGameTime.Seconds;
+
+                DrawStatistics drawCycleStatistics = new DrawStatistics();
+                drawCycleStatistics.drawsThisSec = drawCount;
+                drawCount = 0;
+
+                LastDrawStatistics.Add(drawCycleStatistics);
+
+                if (LastDrawStatistics.Count >= drawLogLength)
+                    LastDrawStatistics.RemoveAt(0);
+
+                int drawSum = 0;
+                for (int i = 0; i < LastDrawStatistics.Count; i++)
+                    drawSum += LastDrawStatistics[i].drawsThisSec;
+
+                if(LastDrawStatistics.Count != 0)
+                    fps = (float)drawSum / (float)LastDrawStatistics.Count;
+            }
+        }
+
+        public struct UpdateStatistics
+        {
+            public float timeElapsed;
+        }
+        public struct DrawStatistics
+        {
+            public int drawsThisSec;
+        }
+
+        public static int repID = -1;
+        public static void checkIfRepeats(UpdateState state)
+        {
+            bool a;
+
+            if (state.ID != repID)
+                repID = state.ID;
+            else
+                a = true;
         }
     }
 }

@@ -111,6 +111,8 @@
     <Compile Include="AssetManager\AssetSpriteFont.cs" />
     <Compile Include="AssetManager\AssetTexture.cs" />
     <Compile Include="AssetManager\AssetTextureStrip.cs" />
+    <Compile Include="FrameWorkMechanics\MenuEntry.cs" />
+    <Compile Include="FrameWorkMechanics\Menu.cs" />
     <Compile Include="GameMechanics\ActiveBox.cs" />
     <Compile Include="GameMechanics\Dummy.cs" />
     <Compile Include="Game\GameManager.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="Game1.cs" />
     <Compile Include="SoundManager\SoundManager.cs" />
     <Compile Include="StorageManager\StorageManager.cs" />
+    <Compile Include="UpdateManager\Updatable.cs" />
     <Compile Include="UserInterfaceManager\UserInterfaceManager.cs" />
   </ItemGroup>
   <ItemGroup>

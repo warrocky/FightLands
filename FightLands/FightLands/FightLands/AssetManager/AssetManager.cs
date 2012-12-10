@@ -13,7 +13,7 @@ namespace FightLands
     /// </summary>
     static class AssetManager
     {
-        static ContentManager content;
+        public static ContentManager content;
 
         static List<AssetTexture> textures;
         static List<AssetTextureStrip> textureStrips;

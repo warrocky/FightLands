@@ -8,6 +8,7 @@ namespace FightLands
 {
     class LocalPlayer : Player
     {
+
         Dictionary<ActionKeyType, Keys> keyMapping;
         public LocalPlayer(Dictionary<ActionKeyType, Keys> keyMapping)
         {
@@ -15,10 +16,15 @@ namespace FightLands
         }
         public override void Update(UpdateState state)
         {
-            KeyboardState keybState = Keyboard.GetState();
+            KeyboardState keybState = state.keyboardState;
 
-            for (int i = 0; i < Enum.GetValues(typeof(ActionKeyType)).Length; i++)
-                keyboard.keyboard[(ActionKeyType)i].Update(state.elapsedTime, keybState.IsKeyDown(keyMapping[(ActionKeyType)i]));
+            ActionKeyType keyType;
+            int keybLength = Enum.GetValues(typeof(ActionKeyType)).Length;
+            for (int i = 0; i < keybLength; i++)
+            {
+                keyType = (ActionKeyType)i;
+                keyboard.keyboard[keyType].Update(state.elapsedTime, keybState.IsKeyDown(keyMapping[keyType]),state.ID);
+            }
 
             base.Update(state);
         }

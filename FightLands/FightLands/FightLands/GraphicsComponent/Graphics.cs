@@ -22,6 +22,7 @@ namespace FightLands
         }
 
         static SpriteBatch spriteBatch;
+        static SpriteFont defaultFont;
 
         public static void Initialize(GraphicsDevice graphicsDevice,Point resolution)
         {
@@ -30,6 +31,10 @@ namespace FightLands
             graphicsDevice.PresentationParameters.BackBufferHeight = resolution.Y;
             _resolution = resolution;
             spriteBatch = new SpriteBatch(_device);
+        }
+        public static void LoadContent()
+        {
+            defaultFont = AssetManager.content.Load<SpriteFont>("defaultFont");
         }
 
         public static Camera baseCamera;
@@ -56,6 +61,11 @@ namespace FightLands
                 device.SetRenderTarget(null);
                 spriteBatch.Begin();
                 spriteBatch.Draw(baseCamera.backbuffer, new Rectangle(0, 0, resolution.X, resolution.Y), Color.White);
+                spriteBatch.End();
+                spriteBatch.Begin();
+                spriteBatch.DrawString(defaultFont,"" + Statistics.updatesPerSec,Vector2.Zero, Color.Red);
+                spriteBatch.DrawString(defaultFont, "" + Statistics.fps, Vector2.UnitY * 50f, Color.Red);
+                spriteBatch.DrawString(defaultFont, "" + Statistics.keyPresses, Vector2.UnitY * 100f, Color.Red);
                 spriteBatch.End();
             }
         }
