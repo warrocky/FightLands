@@ -39,6 +39,7 @@ namespace FightLands
         /// </summary>
         protected override void Initialize()
         {
+            UpdateManager.Initialize();
             Statistics.Initialize();
             PlayerManager.Initialize();
             AssetManager.Initialize(Content);
@@ -78,15 +79,7 @@ namespace FightLands
             previousKeyboardState = currentKeyboardState;
             currentKeyboardState = Keyboard.GetState();
 
-            if (previousKeyboardState.IsKeyUp(Keys.W) && currentKeyboardState.IsKeyDown(Keys.W))
-                Statistics.keyPresses++;
-
-            UpdateState state = new UpdateState(gameTime, currentKeyboardState);
-
-            PlayerManager.Update(state);
-            UserInterfaceManager.Update(state);
-
-            Statistics.Update(state);
+            UpdateManager.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -123,10 +116,11 @@ namespace FightLands
             lastUpdateStatistics = new List<UpdateStatistics>();
             LastDrawStatistics = new List<DrawStatistics>();
         }
-        public static void Update(UpdateState state)
+        public static void Update(GameTime time)
         {
+            float elapsedTime = ((float)time.ElapsedGameTime.Milliseconds) / 1000f;
             UpdateStatistics cycleStatistics = new UpdateStatistics();
-            cycleStatistics.timeElapsed = state.elapsedTime;
+            cycleStatistics.timeElapsed = elapsedTime;
             lastUpdateStatistics.Add(cycleStatistics);
 
             if (lastUpdateStatistics.Count >= updateLogLength)
@@ -139,9 +133,9 @@ namespace FightLands
             updatesPerSec = 1f/(timesum / lastUpdateStatistics.Count);
 
             //DrawStatistics
-            if (second != state.time.TotalGameTime.Seconds)
+            if (second != time.TotalGameTime.Seconds)
             {
-                second = state.time.TotalGameTime.Seconds;
+                second = time.TotalGameTime.Seconds;
 
                 DrawStatistics drawCycleStatistics = new DrawStatistics();
                 drawCycleStatistics.drawsThisSec = drawCount;
@@ -175,8 +169,8 @@ namespace FightLands
         {
             bool a;
 
-            if (state.ID != repID)
-                repID = state.ID;
+            if (state.GlobalUpdateID != repID)
+                repID = state.GlobalUpdateID;
             else
                 a = true;
         }

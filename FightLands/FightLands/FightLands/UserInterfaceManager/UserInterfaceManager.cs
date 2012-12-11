@@ -14,12 +14,8 @@ namespace FightLands
         {
             baseWorld = new World();
             baseCamera = new Camera(Graphics.resolution.X, Graphics.resolution.Y, baseWorld);
-        }
 
-        public static void Update(UpdateState state)
-        {
-            //temporary Code (before UpdateManager
-            baseWorld.Update(state);
+            UpdateManager.addUpdateRegister(new UpdateRegister(baseWorld, "UIBaseWorld"));
         }
     }
 }

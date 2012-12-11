@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace FightLands
 {
-    abstract class GameObject
+    abstract class GameObject : Updatable
     {
         public readonly World world;
 

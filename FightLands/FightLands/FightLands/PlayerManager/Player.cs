@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FightLands
 {
-    abstract class Player
+    abstract class Player : Updatable
     {
         static int currentID;
         /// <summary>
@@ -76,7 +76,7 @@ namespace FightLands
         public bool JustReleased { get { return keyState == KeyState.JustReleased; } }
         public bool Released { get { return keyState == KeyState.Released; } }
 
-        public void Update(float timeSinceLastUpdate, bool isDown, int ID)
+        public void Update(float timeSinceLastUpdate, bool isDown)
         {
             switch (keyState)
             {

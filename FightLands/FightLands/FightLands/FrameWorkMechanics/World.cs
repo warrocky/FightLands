@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FightLands
 {
-    class World
+    class World : Updatable
     {
         List<GameObject> objectList;
         List<GameObject> objectAddList;

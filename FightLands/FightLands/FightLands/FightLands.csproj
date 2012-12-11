@@ -140,6 +140,8 @@
     <Compile Include="SoundManager\SoundManager.cs" />
     <Compile Include="StorageManager\StorageManager.cs" />
     <Compile Include="UpdateManager\Updatable.cs" />
+    <Compile Include="UpdateManager\UpdateManager.cs" />
+    <Compile Include="UpdateManager\UpdateRegister.cs" />
     <Compile Include="UserInterfaceManager\UserInterfaceManager.cs" />
   </ItemGroup>
   <ItemGroup>

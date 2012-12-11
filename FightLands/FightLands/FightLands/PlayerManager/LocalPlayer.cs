@@ -16,14 +16,14 @@ namespace FightLands
         }
         public override void Update(UpdateState state)
         {
-            KeyboardState keybState = state.keyboardState;
+            KeyboardState keybState = Keyboard.GetState();
 
             ActionKeyType keyType;
             int keybLength = Enum.GetValues(typeof(ActionKeyType)).Length;
             for (int i = 0; i < keybLength; i++)
             {
                 keyType = (ActionKeyType)i;
-                keyboard.keyboard[keyType].Update(state.elapsedTime, keybState.IsKeyDown(keyMapping[keyType]),state.ID);
+                keyboard.keyboard[keyType].Update(state.elapsedTime, keybState.IsKeyDown(keyMapping[keyType]));
             }
 
             base.Update(state);

@@ -37,7 +37,7 @@ namespace FightLands
                 }
         }
 
-        public class MainMenu : Menu<MainMenu.DefaultEntry>
+        public class MainMenu : Menu<MainMenu.DefaultEntry>, Controlable
         {
             GameManager manager;
 
@@ -101,6 +101,10 @@ namespace FightLands
                 {
                     manager.QuitGame();
                 }
+            }
+            public void Interact(PlayerKeyboard actionKeyboard)
+            {
+
             }
         }
     }

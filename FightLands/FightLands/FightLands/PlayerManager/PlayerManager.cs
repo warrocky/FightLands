@@ -22,6 +22,8 @@ namespace FightLands
 
             players.Add(player);
             tags.Add(tag);
+
+            UpdateManager.addUpdateRegister(new UpdateRegister(player, "player-" + tag));
         }
 
         public static bool checkIfTagExists(String tag)
@@ -57,11 +59,11 @@ namespace FightLands
             throw new Exception("Player does not exist.");
         }
 
-        public static void Update(UpdateState state)
-        {
-            for (int i = 0; i < players.Count; i++)
-                players[i].Update(state);
-        }
+        //public static void Update(UpdateState state)
+        //{
+        //    for (int i = 0; i < players.Count; i++)
+        //        players[i].Update(state);
+        //}
     }
 
 }

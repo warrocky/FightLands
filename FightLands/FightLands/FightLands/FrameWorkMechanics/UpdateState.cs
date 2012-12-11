@@ -12,23 +12,29 @@ namespace FightLands
     /// </summary>
     class UpdateState
     {
-        static int currentID;
-
-        public UpdateState(GameTime time, KeyboardState keybState)
-        {
-            ID = currentID;
-            currentID++;
-            this.time = time;
-            elapsedTime = ((float)time.ElapsedGameTime.Milliseconds)/1000f;
-            keyboardState = keybState;
-        }
-        public readonly int ID;
-        public readonly GameTime time;
         /// <summary>
         /// The elapsed float time in seconds.
         /// </summary>
         public readonly float elapsedTime;
+        /// <summary>
+        /// The number of Updates since the beginning of the application.
+        /// </summary>
+        public readonly int GlobalUpdateID;
+        /// <summary>
+        /// This register UpdateID. As in the number of times the Update root under this register has been updated.
+        /// </summary>
+        public readonly int RegisterUpdateID;
+        /// <summary>
+        /// The register managing this update root update cycle.
+        /// </summary>
+        public readonly UpdateRegister register;
 
-        public readonly KeyboardState keyboardState;
+        public UpdateState(float elapsedTime, int GlobalID, int RegisterID, UpdateRegister register)
+        {
+            this.GlobalUpdateID = GlobalID;
+            this.RegisterUpdateID = RegisterID;
+            this.elapsedTime = elapsedTime;
+            this.register = register;
+        }
     }
 }
