@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace FightLands
 {
@@ -18,7 +19,7 @@ namespace FightLands
 
         Land land;
         Camera landCamera;
-        ActiveBox landActiveBox;
+        LandActiveBox landActiveBox;
 
         public readonly LocalPlayer player1;
 
@@ -34,23 +35,31 @@ namespace FightLands
             keyMapping.Add(ActionKeyType.Down, Keys.S);
             keyMapping.Add(ActionKeyType.Right, Keys.D);
             keyMapping.Add(ActionKeyType.Left, Keys.A);
+            keyMapping.Add(ActionKeyType.Space, Keys.Space);
             player1 = new LocalPlayer(keyMapping);
             PlayerManager.addPlayer(player1, "player1");
         }
+
         public void StartGame()
         {
             gameState = gameManagerState.inLands;
             land = new Land();
-            landCamera = new Camera(400,400, land);
-            landActiveBox = new ActiveBox(world, landCamera);
+            landActiveBox = new LandActiveBox(land, world);
+            landCamera = landActiveBox.camera;
+            LandCameraControl control = new LandCameraControl(land, landCamera);
+            HumanPlayer human = new HumanPlayer(land);
+            PlayerManager.getPlayer("player1").addControlable(human);
+            control.setAnchor(human);
         }
         public void QuitGame()
         {
             game.Exit();
         }
+
         public override void Update(UpdateState state)
         {
-
+            if (gameState == gameManagerState.inLands)
+                land.Update(state);
         }
     }
 }

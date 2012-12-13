@@ -62,7 +62,7 @@ namespace FightLands
             {
                 currentUpdateID++;
 
-                UpdateState state = new UpdateState(timeElapsedSinceLastUpdate, GlobalUpdateID, currentUpdateID, this);
+                UpdateState state = new UpdateState(((float)timeElapsedSinceLastUpdate)/1000f, GlobalUpdateID, currentUpdateID, this);
 
                 updatedObject.Update(state);
                 updatesPassed = 0;

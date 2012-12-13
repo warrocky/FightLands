@@ -33,9 +33,23 @@ namespace FightLands
             set { scale.Y = value / texture.texture.Height; } 
         }
 
+        public Vector2 size
+        {
+            set { sizeX = value.X; sizeY = value.Y; }
+            get { return new Vector2(sizeX, sizeY); }
+        }
+
         public DrawableTexture(AssetTexture texture, GameObject parent)
         {
             this.texture = texture;
+            this.parent = parent;
+            this.scale = Vector2.One;
+            this.filter = Color.White;
+            this.layer = 0f;
+        }
+        public DrawableTexture(String textureLabel, GameObject parent)
+        {
+            this.texture = AssetManager.getAssetTexture(textureLabel);
             this.parent = parent;
             this.scale = Vector2.One;
             this.filter = Color.White;

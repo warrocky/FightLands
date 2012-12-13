@@ -28,6 +28,10 @@ namespace FightLands.GraphicsComponent
         }
         protected internal void Render(RenderState state)
         {
+            for(int i=0;i<subBatchs.Count;i++)
+                subBatchs[i].Render(state);
+
+
             Graphics.device.SetRenderTarget(backbuffer);
             state.spriteBatch.Begin();
             for (int i = 0; i < drawCalls.Count; i++)

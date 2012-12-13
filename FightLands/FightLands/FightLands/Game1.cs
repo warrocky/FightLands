@@ -56,8 +56,11 @@ namespace FightLands
         protected override void LoadContent()
         {
             Graphics.LoadContent();
+            AssetManager.LoadContent();
+
+
             new GameManager(UserInterfaceManager.baseWorld, this);
-            Graphics.baseCamera = UserInterfaceManager.baseCamera;
+
         }
 
         /// <summary>

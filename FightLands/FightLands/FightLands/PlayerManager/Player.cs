@@ -48,7 +48,7 @@ namespace FightLands
         }
     }
 
-    public enum ActionKeyType { Left, Right, Up, Down }
+    public enum ActionKeyType { Left, Right, Up, Down , Space}
     public class PlayerKeyboard
     {
         public Dictionary<ActionKeyType, ActionKey> keyboard;

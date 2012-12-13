@@ -135,5 +135,17 @@ namespace FightLands
 
             throw new Exception("No such AssetSpriteFont in the AssetManager, label: \"" + label + "\".");
         }
+
+
+        public static void LoadContent()
+        {
+            Texture2D texture = new Texture2D(Graphics.device, 100, 100);
+            Color[] array = new Color[100 * 100];
+            for (int i = 0; i < array.Length; i++)
+                array[i] = Color.White;
+            texture.SetData<Color>(array);
+
+            CreateAssetTexture("whiteSquare", texture);
+        }
     }
 }

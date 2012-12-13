@@ -7,7 +7,7 @@ namespace FightLands
 {
     class Dummy : GameObject
     {
-        DrawableTexture texture;
+        public DrawableTexture texture;
 
         public Dummy(World world, String texture)
             : base(world)

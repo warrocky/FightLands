@@ -7,10 +7,16 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FightLands
 {
+    //TODO: Spread Update Registers acording to frequency.
+
     static class UpdateManager
     {
         static List<UpdateRegister> updatedList;
         static int UpdateID = 0;
+        public static int CycleCount
+        {
+            get { return UpdateID; }
+        }
 
         public static void Initialize()
         {

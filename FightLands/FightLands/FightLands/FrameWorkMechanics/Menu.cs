@@ -27,7 +27,7 @@ namespace FightLands
         /// <summary>
         /// Property that returns the current selected entry. Set to select a new entry firing associated events.
         /// </summary>
-        int selectedEntry
+        public int selectedEntry
         {
             get { return _selectedEntry; }
             set 
@@ -127,10 +127,11 @@ namespace FightLands
         /// </summary>
         protected virtual void SelectCurrentEntry()
         {
-            if (_selectedEntry == -1)
-                throw new Exception("No entry selected.");
+            //if (_selectedEntry == -1)
+            //    throw new Exception("No entry selected.");
 
-            entries[selectedEntry].Select();
+            if(selectedEntry != -1)
+                entries[selectedEntry].Select();
         }
 
         /// <summary>

@@ -63,9 +63,10 @@ namespace FightLands
                 spriteBatch.Draw(baseCamera.backbuffer, new Rectangle(0, 0, resolution.X, resolution.Y), Color.White);
                 spriteBatch.End();
                 spriteBatch.Begin();
-                spriteBatch.DrawString(defaultFont,"" + Statistics.updatesPerSec,Vector2.Zero, Color.Red);
-                spriteBatch.DrawString(defaultFont, "" + Statistics.fps, Vector2.UnitY * 50f, Color.Red);
-                spriteBatch.DrawString(defaultFont, "" + Statistics.keyPresses, Vector2.UnitY * 100f, Color.Red);
+                spriteBatch.DrawString(defaultFont,"" + UpdateManager.CycleCount,Vector2.Zero, Color.LightBlue);
+                //spriteBatch.DrawString(defaultFont,"" + Statistics.updatesPerSec,Vector2.Zero, Color.Red);
+                //spriteBatch.DrawString(defaultFont, "" + Statistics.fps, Vector2.UnitY * 50f, Color.Red);
+                //spriteBatch.DrawString(defaultFont, "" + Statistics.keyPresses, Vector2.UnitY * 100f, Color.Red);
                 spriteBatch.End();
             }
         }

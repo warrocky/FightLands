@@ -15,6 +15,11 @@ namespace FightLands
         public float rotation;
         public float rotationSpeed;
 
+        public Vector2 forward
+        {
+            get { return MathHelper.getDirectionFromAngle(rotation); }
+        }
+
         public GameObject(World world)
         {
             this.world = world;

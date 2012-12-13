@@ -115,8 +115,14 @@
     <Compile Include="FrameWorkMechanics\Menu.cs" />
     <Compile Include="GameMechanics\ActiveBox.cs" />
     <Compile Include="GameMechanics\Dummy.cs" />
+    <Compile Include="Game\Creatures\Creature.cs" />
+    <Compile Include="Game\Creatures\Human.cs" />
+    <Compile Include="Game\Creatures\HumanPlayer.cs" />
     <Compile Include="Game\GameManager.cs" />
-    <Compile Include="Game\Land.cs" />
+    <Compile Include="Game\LandActiveBox.cs" />
+    <Compile Include="Game\Land\Land.cs" />
+    <Compile Include="Game\Land\LandCameraControl.cs" />
+    <Compile Include="Game\Land\TerrainTile.cs" />
     <Compile Include="Game\MenuManager.cs" />
     <Compile Include="GraphicsComponent\DrawableText.cs" />
     <Compile Include="GraphicsComponent\DrawCall.cs" />

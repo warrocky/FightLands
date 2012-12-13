@@ -16,6 +16,7 @@ namespace FightLands
             baseCamera = new Camera(Graphics.resolution.X, Graphics.resolution.Y, baseWorld);
 
             UpdateManager.addUpdateRegister(new UpdateRegister(baseWorld, "UIBaseWorld"));
+            Graphics.baseCamera = baseCamera;
         }
     }
 }

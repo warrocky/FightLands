@@ -58,6 +58,7 @@ namespace FightLands
         public override void Draw(DrawState state)
         {
             camera.Draw(state);
+            texture.Draw(state);
         }
     }
 }

@@ -89,7 +89,7 @@ namespace FightLands
                 {}
                 public override void Select()
                 {
-                    base.Select();
+                    manager.StartGame();
                 }
             }
             public class QuitGame : DefaultEntry
@@ -104,7 +104,14 @@ namespace FightLands
             }
             public void Interact(PlayerKeyboard actionKeyboard)
             {
+                if (actionKeyboard.keyboard[ActionKeyType.Up].JustPressed)
+                    selectedEntry++;
 
+                if (actionKeyboard.keyboard[ActionKeyType.Down].JustPressed)
+                    selectedEntry--;
+
+                if (actionKeyboard.keyboard[ActionKeyType.Space].JustPressed)
+                    SelectCurrentEntry();
             }
         }
     }
