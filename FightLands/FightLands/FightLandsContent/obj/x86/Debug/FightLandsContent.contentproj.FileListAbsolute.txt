@@ -1,2 +1,0 @@
-C:\Users\ruben\Documents\GitHub\FightLands\FightLands\FightLands\FightLandsContent\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\theCptnUnderpants\Documents\GitHub\FightLands\FightLands\FightLands\FightLandsContent\obj\x86\Debug\FightLandsContent.contentprojResolveAssemblyReference.cache
