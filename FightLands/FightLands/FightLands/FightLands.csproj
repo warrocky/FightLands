@@ -123,6 +123,7 @@
     <Compile Include="Game\Land\Land.cs" />
     <Compile Include="Game\Land\LandCameraControl.cs" />
     <Compile Include="Game\Land\TerrainTile.cs" />
+    <Compile Include="Game\MapPreviewer.cs" />
     <Compile Include="Game\MenuManager.cs" />
     <Compile Include="GraphicsComponent\DrawableText.cs" />
     <Compile Include="GraphicsComponent\DrawCall.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="GraphicsComponent\RenderBatch.cs" />
     <Compile Include="GraphicsComponent\RenderState.cs" />
     <Compile Include="MathHelper.cs" />
+    <Compile Include="NoiseLib.cs" />
     <Compile Include="PlayerManager\Controlable.cs" />
     <Compile Include="PlayerManager\LocalPlayer.cs" />
     <Compile Include="PlayerManager\Player.cs" />

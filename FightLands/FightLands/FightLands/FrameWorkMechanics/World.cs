@@ -18,7 +18,7 @@ namespace FightLands
             objectRemoveList = new List<GameObject>();
         }
 
-        public void Update(UpdateState state)
+        public virtual void Update(UpdateState state)
         {
             for (int i = 0; i < objectList.Count; i++)
             {

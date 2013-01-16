@@ -53,5 +53,60 @@ namespace FightLands
             vector.Normalize();
             return getAngleFromDirection(vector);
         }
+
+        /// <summary>
+        /// A method that calculates the Spiral coordinates of a point from cartesian coordinates.
+        /// </summary>
+        /// <param name="x">The value in the x axis.</param>
+        /// <param name="y">The value in the y axis</param>
+        /// <returns></returns>
+        public static long cartesianToSpiral(int x, int y)
+        {
+            long nivel, origem, stride;
+
+            if (Math.Abs(x) > Math.Abs(y))
+            {
+                nivel = Math.Abs(x);
+
+                origem = 1 + 4 * (nivel * (nivel - 1));
+
+                stride = nivel * 2;
+                if (x > 0)
+                    if (y >= 0)
+                    {
+                        return origem + y;
+                    }
+                    else
+                    {
+                        return origem + 4 * stride + y;
+                    }
+                else
+                {
+                    //x não pode ser 0 pois é maior que y e y é maior que 0.
+                    return origem + 2 * stride - y;
+                }
+            }
+            else
+            {
+                nivel = Math.Abs(y);
+
+                origem = 1 + 4 * (nivel * (nivel - 1));
+
+                stride = nivel * 2;
+
+                if (y > 0)
+                {
+                    return origem + stride - x;
+                }
+                else if (y == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return origem + 3 * stride + x;
+                }
+            }
+        }
     }
 }
