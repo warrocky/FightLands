@@ -43,13 +43,14 @@ namespace FightLands
         public void StartGame()
         {
             gameState = gameManagerState.inLands;
-            land = new Land();
+            land = new Land(0);
             landActiveBox = new LandActiveBox(land, world);
             landCamera = landActiveBox.camera;
             LandCameraControl control = new LandCameraControl(land, landCamera);
             HumanPlayer human = new HumanPlayer(land);
             PlayerManager.getPlayer("player1").addControlable(human);
             control.setAnchor(human);
+            land.addContentRequirer(human);
         }
         public void QuitGame()
         {

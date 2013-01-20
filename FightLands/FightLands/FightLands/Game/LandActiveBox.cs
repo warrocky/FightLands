@@ -13,8 +13,8 @@ namespace FightLands
             : base(world, new Camera(500, 500, land))
         {
             border = new DrawableTexture("whiteSquare", this);
-            border.sizeX = 512;
-            border.sizeY = 512;
+            border.size.X = 512;
+            border.size.Y = 512;
             border.filter = Color.Black;
         }
         public override void Draw(DrawState state)

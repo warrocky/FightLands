@@ -7,9 +7,9 @@ namespace FightLands
 {
     class World : Updatable
     {
-        List<GameObject> objectList;
-        List<GameObject> objectAddList;
-        List<GameObject> objectRemoveList;
+        protected List<GameObject> objectList;
+        protected List<GameObject> objectAddList;
+        protected List<GameObject> objectRemoveList;
 
         public World()
         {
@@ -39,16 +39,24 @@ namespace FightLands
                 objectAddList.RemoveAt(0);
             }
         }
-        public void Draw(DrawState state)
+        public virtual void Draw(DrawState state)
         {
             for (int i = 0; i < objectList.Count; i++)
                 objectList[i].Draw(state);
         }
 
+        /// <summary>
+        /// Adds the object to the world removal list and removes it without destroying it at the end of the first world Update cycle to occur.
+        /// </summary>
+        /// <param name="gameObject">The GameObject to be removed from the list.</param>
         public void RemoveObject(GameObject gameObject)
         {
             objectRemoveList.Add(gameObject);
         }
+        /// <summary>
+        /// Adds the object to the world addition list and adds it at the end of the first world Update cycle to occur.
+        /// </summary>
+        /// <param name="gameObject">The GameObject to be added.</param>
         public void AddObject(GameObject gameObject)
         {
             objectAddList.Add(gameObject);

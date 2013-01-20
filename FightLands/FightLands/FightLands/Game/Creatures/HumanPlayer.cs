@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 
 namespace FightLands
 {
-    class HumanPlayer : Human , Controlable
+    class HumanPlayer : Human , Controlable, Land.LandContentRequirer
     {
         DrawableTexture guy;
 
@@ -19,8 +20,8 @@ namespace FightLands
             : base(world)
         {
             guy = new DrawableTexture("whiteSquare", this);
-            guy.sizeX = 10f;
-            guy.sizeY = 10f;
+            guy.size.X = 10f;
+            guy.size.Y = 10f;
         }
 
         public void Interact(PlayerKeyboard actionKeyboard)
@@ -84,6 +85,16 @@ namespace FightLands
         public override void Draw(DrawState state)
         {
             guy.Draw(state);
+        }
+
+        public float LandContentRequirerRadius(Land land)
+        {
+            return 10f;
+        }
+
+        public Vector2 LandContentRequirerPosition(Land land)
+        {
+            return position;
         }
     }
 }

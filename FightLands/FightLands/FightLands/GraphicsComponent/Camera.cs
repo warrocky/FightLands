@@ -36,7 +36,7 @@ namespace FightLands
 
         Vector2 _diagonal;
         /// <summary>
-        /// A property that returns the rendering diagonal of this camera.
+        /// A property that returns the world diagonal of this camera.
         /// </summary>
         public Vector2 diagonal
         {
@@ -50,6 +50,7 @@ namespace FightLands
         {
             this.width = width;
             this.height = height;
+            //zoom sets diagonal as well
             zoom = 1f;
             this.world = world;
         }

@@ -19,31 +19,23 @@ namespace FightLands
         public Vector2 position;
         public float rotation;
         public float layer;
-        public Vector2 scale;
+        public Vector2 size;
 
-        public float sizeX
+        public Vector2 textureScale
         {
-            get { return scale.X * texture.texture.Width; }
-            set { scale.X = value / texture.texture.Width; } 
-        }
-
-        public float sizeY
-        {
-            get { return scale.Y * texture.texture.Height; }
-            set { scale.Y = value / texture.texture.Height; } 
-        }
-
-        public Vector2 size
-        {
-            set { sizeX = value.X; sizeY = value.Y; }
-            get { return new Vector2(sizeX, sizeY); }
+            set 
+            { 
+                size.X = value.X * texture.width; 
+                size.Y = value.Y * texture.height; 
+            }
+            get { return new Vector2(size.X / (float)texture.width, size.Y / (float)texture.height); }
         }
 
         public DrawableTexture(AssetTexture texture, GameObject parent)
         {
             this.texture = texture;
             this.parent = parent;
-            this.scale = Vector2.One;
+            this.size = new Vector2(texture.width, texture.height);
             this.filter = Color.White;
             this.layer = 0f;
         }
@@ -51,7 +43,7 @@ namespace FightLands
         {
             this.texture = AssetManager.getAssetTexture(textureLabel);
             this.parent = parent;
-            this.scale = Vector2.One;
+            this.size = new Vector2(texture.width, texture.height);
             this.filter = Color.White;
             this.layer = 0f;
         }
@@ -64,7 +56,7 @@ namespace FightLands
             drawPosition = MathHelper.rotateVector2(-state.currentCamera.rotation, drawPosition);
             drawPosition += state.currentCamera.diagonal / 2f;
 
-            state.currentCamera.addDrawCall(new DrawCallTexture(texture, drawPosition, rotation + parent.rotation - state.currentCamera.rotation, filter, scale*state.currentCamera.zoom, layer));
+            state.currentCamera.addDrawCall(new DrawCallTexture(texture, drawPosition, rotation + parent.rotation - state.currentCamera.rotation, filter, textureScale*state.currentCamera.zoom, layer));
         }
 
         public class DrawCallTexture : GraphicsComponent.DrawCall

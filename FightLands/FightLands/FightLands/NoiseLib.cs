@@ -47,7 +47,13 @@ namespace FightLands
             return noiseValue;
         }
 
-
+        /// <summary>
+        /// Method that returns a Turbulence noise with the speficied parameters that has a customizable filter.
+        /// </summary>
+        /// <param name="period">Size of the noise.</param>
+        /// <param name="steps">Detail of the noise</param>
+        /// <param name="seed">The seed used</param>
+        /// <returns>A SumNoise with several noises.</returns>
         public static Noise TurbulenceNoise(float period, int steps, int seed)
         {
             SumNoise sumNoise = new SumNoise();

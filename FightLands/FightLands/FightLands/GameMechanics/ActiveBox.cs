@@ -22,7 +22,7 @@ namespace FightLands
         /// </summary>
         public Vector2 size
         {
-            set { texture.sizeX = value.X; texture.sizeY = value.Y; }
+            set { texture.size.X = value.X; texture.size.Y = value.Y; }
         }
 
         /// <summary>
