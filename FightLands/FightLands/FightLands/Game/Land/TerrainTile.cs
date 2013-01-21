@@ -48,6 +48,8 @@ namespace FightLands
 
             float[,] noiseData = land.grassLandGreeness.getValues(new Point(texture.Width, texture.Height), position - size/2f, size);
             float[,] noiseDirtData = land.dirtPatches.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
+            float[,] noiseMountainChanceData = land.mountainChance.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
+            float[,] noiseMountainChainData = land.mountainChainNoise.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
 
             Color[] colorArray = new Color[texture.Width*texture.Height];
 
@@ -67,7 +69,7 @@ namespace FightLands
                 grassColor = Color.Lerp(Color.Lerp(Color.Black,Color.DarkGreen, (float)Math.Sqrt(noiseData[x,y])), Color.LawnGreen, noiseData[x, y] + grassRoughness - noiseDirtData[x,y]*0.3f);
 
                 dirtRoughness = (((float)rdm.NextDouble() - 1f) * 0.3f);
-                dirtColor = Color.Lerp(Color.Black,Color.Lerp(Color.SaddleBrown,Color.Black,0.5f),noiseDirtData[x,y] + dirtRoughness);
+                dirtColor = Color.Lerp(Color.Black,Color.Lerp(Color.SaddleBrown,Color.Black,0.1f),noiseDirtData[x,y] + dirtRoughness + 0.1f);
 
                 noise = noiseData[x, y]*0.7f + noiseDirtData[x, y]*0.3f;
 
@@ -79,7 +81,10 @@ namespace FightLands
                 else
                     colorArray[i] = grassColor;
 
-                if (x == texture.Width/2|| y == texture.Height/2)
+                if (noiseMountainChanceData[x, y] - (float)rdm.NextDouble() * 0.4f < 0.85f && noiseMountainChainData[x, y] - (float)rdm.NextDouble() * 0.08f < 0.12f)
+                    colorArray[i] = Color.Lerp(Color.Lerp(Color.DimGray,grassColor,(float)rdm.NextDouble()), colorArray[i], (float)rdm.NextDouble()*0.2f + noise);
+
+                if (x == texture.Width / 2 || y == texture.Height / 2)
                     colorArray[i] = Color.Black;
             }
 

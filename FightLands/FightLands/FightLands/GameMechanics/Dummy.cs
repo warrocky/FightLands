@@ -14,6 +14,11 @@ namespace FightLands
         {
             this.texture = new DrawableTexture(AssetManager.getAssetTexture(texture), this);
         }
+        public Dummy(World world, AssetTexture texture)
+            : base(world)
+        {
+            this.texture = new DrawableTexture(texture, this);
+        }
         public override void Draw(DrawState state)
         {
             texture.Draw(state);

@@ -108,5 +108,52 @@ namespace FightLands
                 }
             }
         }
+
+        /// <summary>
+        /// Returns a seemingly normally distributed random number from a Random object
+        /// </summary>
+        /// <param name="rdm">The Random object the number will be retrieved from.</param>
+        /// <returns>A normally distributed random number centered on 0 with a maximum deviation of 1.</returns>
+        public static float getNextNormalDistributedFloat(Random rdm)
+        {
+            return getNextNormalDistributedFloat(0f, 1f, rdm);
+        }
+        /// <summary>
+        /// Returns a seemingly normally distributed random number from a Random object.
+        /// </summary>
+        /// <param name="center">The center of the distribution (average).</param>
+        /// <param name="deviation">The maximum deviation of the distribution.</param>
+        /// <param name="rdm">The random from which the value will be retrieved.</param>
+        /// <returns>A seemingly normally distributed random number.</returns>
+        public static float getNextNormalDistributedFloat(float center, float deviation, Random rand)
+        {
+            //Random rand = new Random(); //reuse this if you are generating many
+            double u1 = rand.NextDouble(); //these are uniform(0,1) random doubles
+            double u2 = rand.NextDouble();
+            double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) *
+                         Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
+            double randNormal =
+                         center + deviation/2f * randStdNormal; //random normal(mean,stdDev^2)
+
+            return (float)randNormal;
+        }
+
+        /// <summary>
+        /// Restricts a value to be within the specified boundaries
+        /// </summary>
+        /// <param name="value">The value to be clamped</param>
+        /// <param name="lowerLimit">Lower boundary</param>
+        /// <param name="upperLimit">Upper bountary</param>
+        /// <returns>A value between the specified boundaries.</returns>
+        public static float Clamp(float value, float lowerLimit, float upperLimit)
+        {
+            if (value < lowerLimit)
+                return lowerLimit;
+            else
+                if (value > upperLimit)
+                    return upperLimit;
+                else
+                    return value;
+        }
     }
 }

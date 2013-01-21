@@ -122,6 +122,8 @@
     <Compile Include="Game\LandActiveBox.cs" />
     <Compile Include="Game\Land\Land.cs" />
     <Compile Include="Game\Land\LandCameraControl.cs" />
+    <Compile Include="Game\Land\Mountain.cs" />
+    <Compile Include="Game\Land\MountainChain.cs" />
     <Compile Include="Game\Land\TerrainTile.cs" />
     <Compile Include="Game\MapPreviewer.cs" />
     <Compile Include="Game\MenuManager.cs" />
