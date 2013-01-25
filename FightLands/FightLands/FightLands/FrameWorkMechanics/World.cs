@@ -49,7 +49,7 @@ namespace FightLands
         /// Adds the object to the world removal list and removes it without destroying it at the end of the first world Update cycle to occur.
         /// </summary>
         /// <param name="gameObject">The GameObject to be removed from the list.</param>
-        public void RemoveObject(GameObject gameObject)
+        public virtual void RemoveObject(GameObject gameObject)
         {
             objectRemoveList.Add(gameObject);
         }
@@ -57,7 +57,7 @@ namespace FightLands
         /// Adds the object to the world addition list and adds it at the end of the first world Update cycle to occur.
         /// </summary>
         /// <param name="gameObject">The GameObject to be added.</param>
-        public void AddObject(GameObject gameObject)
+        public virtual void AddObject(GameObject gameObject)
         {
             objectAddList.Add(gameObject);
         }

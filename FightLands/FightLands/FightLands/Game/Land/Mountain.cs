@@ -25,10 +25,12 @@ namespace FightLands
             texture = new DrawableTexture(assetTexture, this);
 
             Random rdm = new Random(seed);
+            texture.rotation = (float)rdm.NextDouble() * (float)Math.PI * 2f;
             this.radius = radius;
             //radius = MathHelper.Clamp(MathHelper.getNextNormalDistributedFloat(3f, 1f, rdm) * 50f, 30f, 500f);
 
             texture.size = new Vector2(radius*2f, radius*2f);
+            texture.layer = 0.07f;
             textureLoaded = false;
         }
         private Texture2D createTexture()
@@ -54,7 +56,7 @@ namespace FightLands
             {
                 angle = (float)(Math.PI * 2f / 1000f) * (float)i;
                 direction = MathHelper.getDirectionFromAngle(angle);
-                direction = distortionCenter + direction * 40f;
+                direction = distortionCenter + direction * MathHelper.Clamp(radius, 40f,80f)/2f;
                 angleDistortions[i] = Math.Abs(angleDistortionValues[(int)direction.X, (int)direction.Y]);
             }
 
@@ -135,8 +137,8 @@ namespace FightLands
                 else
                     colorArray[i] = Color.Transparent;
 
-                if (i % texture.Width == 0 || i % texture.Width == texture.Width - 1 || i / texture.Width == 0 || i / texture.Width == texture.Height - 1)
-                    colorArray[i] = Color.Blue;
+                //if (i % texture.Width == 0 || i % texture.Width == texture.Width - 1 || i / texture.Width == 0 || i / texture.Width == texture.Height - 1)
+                //    colorArray[i] = Color.Blue;
             }
 
             texture.SetData<Color>(colorArray);

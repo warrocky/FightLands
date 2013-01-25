@@ -20,6 +20,7 @@ namespace FightLands
             if (anchor != null)
             {
                 camera.position += (anchor.position - camera.position) * 3f * state.elapsedTime;
+                this.position = camera.position;
             }
         }
         public void setAnchor(GameObject gameObject)

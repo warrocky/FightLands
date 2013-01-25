@@ -33,7 +33,7 @@ namespace FightLands.GraphicsComponent
 
 
             Graphics.device.SetRenderTarget(backbuffer);
-            state.spriteBatch.Begin();
+            state.spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend);
             for (int i = 0; i < drawCalls.Count; i++)
                 drawCalls[i].Render(state);
             state.spriteBatch.End();

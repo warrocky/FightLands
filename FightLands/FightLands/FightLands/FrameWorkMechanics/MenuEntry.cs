@@ -22,5 +22,6 @@ namespace FightLands
         /// A method that fires when the entry is unfocused.
         /// </summary>
         void Unfocus();
+        void dispose();
     }
 }

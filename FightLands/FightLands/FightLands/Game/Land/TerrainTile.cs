@@ -29,6 +29,7 @@ namespace FightLands
             terrainTexture = AssetManager.getAssetTexture("whiteSquare").createAssetCopy("terrain");
             texture = new DrawableTexture(terrainTexture , this);
             texture.size = size;
+            texture.layer = 1f;
             this.size = size;
 
             textureLoaded = false;
@@ -84,8 +85,8 @@ namespace FightLands
                 if (noiseMountainChanceData[x, y] - (float)rdm.NextDouble() * 0.4f < 0.85f && noiseMountainChainData[x, y] - (float)rdm.NextDouble() * 0.08f < 0.12f)
                     colorArray[i] = Color.Lerp(Color.Lerp(Color.DimGray,grassColor,(float)rdm.NextDouble()), colorArray[i], (float)rdm.NextDouble()*0.2f + noise);
 
-                if (x == texture.Width / 2 || y == texture.Height / 2)
-                    colorArray[i] = Color.Black;
+                //if (x == texture.Width / 2 || y == texture.Height / 2)
+                //    colorArray[i] = Color.Black;
             }
 
             texture.SetData<Color>(colorArray);

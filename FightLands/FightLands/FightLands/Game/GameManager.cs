@@ -51,6 +51,7 @@ namespace FightLands
             PlayerManager.getPlayer("player1").addControlable(human);
             control.setAnchor(human);
             land.addContentRequirer(human);
+            land.addUpdateNode(human);
         }
         public void QuitGame()
         {

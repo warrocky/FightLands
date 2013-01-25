@@ -33,6 +33,7 @@ namespace FightLands
                 if (mainMenu != null)
                 {
                     gameManager.player1.removeControlable(mainMenu);
+                    mainMenu.destroy();
                     mainMenu = null;
                 }
         }
@@ -75,6 +76,10 @@ namespace FightLands
                 public void Unfocus()
                 {
                     texture.filter = Color.Gray;
+                }
+                public void dispose()
+                {
+                    destroy();
                 }
 
                 public override void Draw(DrawState state)

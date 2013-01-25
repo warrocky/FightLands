@@ -142,5 +142,15 @@ namespace FightLands
             entries[_selectedEntry].Unfocus();
             _selectedEntry = -1;
         }
+
+        public override void destroy()
+        {
+            while (entries.Count != 0)
+            {
+                entries[0].dispose();
+                entries.RemoveAt(0);
+            }
+            base.destroy();
+        }
     }
 }

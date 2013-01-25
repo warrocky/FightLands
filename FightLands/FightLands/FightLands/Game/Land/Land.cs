@@ -33,6 +33,8 @@ namespace FightLands
             get { return heightInTiles * tileHeight; }
         }
 
+        int seed;
+
         public Noise grassLandGreeness;
         public Noise dirtPatches;
         public Noise mountainChance;
@@ -48,14 +50,37 @@ namespace FightLands
         List<Mountain> mountainList;
         List<Tree> treeList;
 
+        Zone[,] zones;
+        List<ZoneChangingObject> zoneChanges;
+        int horizontalZoneCount;
+        int verticalZoneCount;
+        Vector2 zoneSize;
+
+        List<AssetTexture> treeTextures;
+
         public Land(int seed)
         {
+            this.seed = seed;
             rdm = new Random(seed);
             contentRequirers = new List<LandContentRequirer>();
             updateNodes = new List<LandUpdateNode>();
             widthInTiles = 50;
             heightInTiles = 50;
             tileSize = new Vector2(100f, 100f);
+            horizontalZoneCount = widthInTiles/10;
+            verticalZoneCount = heightInTiles/10;
+            zones = new Zone[horizontalZoneCount,verticalZoneCount];
+            zoneChanges = new List<ZoneChangingObject>();
+
+            Vector2 zonePosition;
+            zoneSize = new Vector2(width / (float)horizontalZoneCount,height/(float)verticalZoneCount);
+            for(int i=0;i<horizontalZoneCount;i++)
+                for (int j = 0; j < verticalZoneCount; j++)
+                {
+                    zonePosition = new Vector2(i * (width / (float)horizontalZoneCount), j * height / (float)verticalZoneCount) - new Vector2(width, height) / 2f + zoneSize/2f;
+                    zones[i, j] = new Zone(zonePosition, zoneSize.Length()/2f,this);
+                    zones[i, j].effectRadius = zones[i, j].zoneRadius;
+                }
 
 
             //Topografy defining Noises
@@ -75,6 +100,7 @@ namespace FightLands
             treeChanceNoise.filter = (float a, Vector2 b) => (a + 1f) / 2f;
 
             //map structures
+            treeTextures = new List<AssetTexture>();
             tiles = new TerrainTile[widthInTiles, heightInTiles];
             mountainList = new List<Mountain>();
             treeList = new List<Tree>();
@@ -86,8 +112,8 @@ namespace FightLands
             for(int i=0;i<widthInTiles;i++)
                 for (int j = 0; j < heightInTiles; j++)
                 {
-                    tiles[i,j] = new TerrainTile(TerrainTile.TerrainType.Grassland, new Vector2(i*tileWidth, j*tileHeight) - center, tileSize, this,rdm.Next());
-                    objectAddList.Remove(tiles[i, j]);
+                    tiles[i,j] = new TerrainTile(TerrainTile.TerrainType.Grassland, new Vector2(i*tileWidth, j*tileHeight) - center + tileSize/2f, tileSize, this,rdm.Next());
+                    //objectAddList.Remove(tiles[i, j]);
                 }
 
 
@@ -143,7 +169,7 @@ namespace FightLands
                             //Create new mountain
                             m1 = new Mountain(rdm.Next(), this, radius);
                             m1.position = mountainPos;
-                            objectAddList.Remove(m1);
+                            //objectAddList.Remove(m1);
                             mountainList.Add(m1);
                         }
                     }
@@ -156,6 +182,7 @@ namespace FightLands
 
 
             //tree generation
+            generateTreeTextures();
             Tree t1 = null;
             Vector2 treePos;
             //float radius, dist, minDist = float.MaxValue;
@@ -202,7 +229,7 @@ namespace FightLands
                         {
                             //Create random radius
                             //radius = MathHelper.getNextNormalDistributedFloat(3f, 1f, rdm) * (10f + 20f * (1f - mountainChainValues[arrayX, arrayY]));
-                            radius = (MathHelper.getNextNormalDistributedFloat(4, 1, rdm)) * 5f;
+                            radius = (MathHelper.getNextNormalDistributedFloat(4, 1, rdm)) * 10f;
 
                             //if radius collides with other tree, reduce the radius.
                             if (radius > minDist)
@@ -214,7 +241,7 @@ namespace FightLands
                             //Create new tree
                             t1 = new Tree(rdm.Next(), radius, this);
                             t1.position = treePos;
-                            objectAddList.Remove(t1);
+                            //objectAddList.Remove(t1);
                             treeList.Add(t1);
                         }
                     }
@@ -296,9 +323,70 @@ namespace FightLands
             return text;
         }
 
+        private void generateTreeTextures()
+        {
+            Random rdm = new Random(seed);
+            for (int i = 1; i <= 20; i++)
+            {
+                treeTextures.Add(new AssetTexture(Tree.createTexture(rdm.Next(),20 + i * 2f), "landTreeText" + i));
+            }
+        }
+        public AssetTexture getTextureForTree(float radius)
+        {
+            for (int i = 0; i < treeTextures.Count; i++)
+                if (radius * 2f < treeTextures[i].width)
+                    return treeTextures[i];
+
+            return treeTextures[treeTextures.Count - 1];
+        }
+
+
+        public Zone getZoneFromPosition(Vector2 position)
+        {
+            int x = (int)MathHelper.Clamp((position.X + width / 2f) / zoneSize.X, 0, horizontalZoneCount - 1);
+            int y = (int)MathHelper.Clamp((position.Y + height / 2f) / zoneSize.Y, 0, verticalZoneCount - 1);
+
+            return zones[x, y];
+        }
+
         public override void Update(UpdateState state)
         {
-            base.Update(state);
+            //base.Update(state);
+
+            foreach (LandUpdateNode node in updateNodes)
+            {
+                foreach (Zone zone in zones)
+                {
+                    if ((zone.position - node.LandUpdateNodePosition(this)).Length() < zone.effectRadius + node.LandUpdateNodeRadius(this))
+                        zone.Update(state);
+                }
+            }
+
+
+            while (objectAddList.Count != 0)
+            {
+                getZoneFromPosition(objectAddList[0].position).objectList.Add(objectAddList[0]);
+                objectAddList.RemoveAt(0);
+            }
+
+            while (objectRemoveList.Count != 0)
+            {
+                if (!getZoneFromPosition(objectRemoveList[0].position).objectList.Remove(objectRemoveList[0]))
+                    foreach (Zone zone in zones)
+                        if (zone.objectList.Remove(objectRemoveList[0]))
+                            break;
+
+                objectRemoveList.RemoveAt(0);
+            }
+
+            while (zoneChanges.Count != 0)
+            {
+                if (zoneChanges[0].previousZone.objectList.Remove(zoneChanges[0].gameObject))
+                    zoneChanges[0].newZone.objectList.Add(zoneChanges[0].gameObject);
+
+                zoneChanges.RemoveAt(0);
+            }
+
             LoadRequiredContent();
         }
         private void LoadRequiredContent()
@@ -321,38 +409,95 @@ namespace FightLands
             }
         }
 
-
         public override void Draw(DrawState state)
         {
-            Vector2 drawArea = state.currentCamera.diagonal;
-            Vector2 drawPosition = state.currentCamera.position;
+            foreach (Zone zone in zones)
+            {
+                if ((zone.position - state.currentCamera.position).Length() < zone.effectRadius + state.currentCamera.diagonal.Length()/2f)
+                    zone.Draw(state);
+            }
 
-            drawArea.X /= tileSize.X;
-            drawArea.Y /= tileSize.Y;
+            //Vector2 drawArea = state.currentCamera.diagonal;
+            //Vector2 drawPosition = state.currentCamera.position;
 
-            Point tileArea = new Point((int)Math.Ceiling(drawArea.X) + 2, (int)Math.Ceiling(drawArea.Y) + 2);
-            Point tileCenter = new Point((int)(drawPosition.X/tileWidth) + widthInTiles / 2, (int)(drawPosition.Y/tileHeight) + heightInTiles / 2);
+            //drawArea.X /= tileSize.X;
+            //drawArea.Y /= tileSize.Y;
 
-            int x, y;
-            for (int i = 0; i < tileArea.X; i++)
-                for (int j = 0; j < tileArea.Y; j++)
+            //Point tileArea = new Point((int)Math.Ceiling(drawArea.X) + 2, (int)Math.Ceiling(drawArea.Y) + 2);
+            //Point tileCenter = new Point((int)(drawPosition.X/tileWidth) + widthInTiles / 2, (int)(drawPosition.Y/tileHeight) + heightInTiles / 2);
+
+            //int x, y;
+            //for (int i = 0; i < tileArea.X; i++)
+            //    for (int j = 0; j < tileArea.Y; j++)
+            //    {
+            //        x = i - tileArea.X / 2 + tileCenter.X;
+            //        y = j - tileArea.Y / 2 + tileCenter.Y;
+
+            //        if (x >= 0 && x < widthInTiles && y >= 0 && y < heightInTiles)
+            //            tiles[x, y].Draw(state);
+            //    }
+
+            //for (int i = 0; i < mountainList.Count; i++)
+            //    if ((mountainList[i].position - state.currentCamera.position).Length() < state.currentCamera.diagonal.Length() + mountainList[i].radius)
+            //        mountainList[i].Draw(state);
+
+            //for (int i = 0; i < treeList.Count; i++)
+            //    if ((treeList[i].position - state.currentCamera.position).Length() < state.currentCamera.diagonal.Length() + treeList[i].radius)
+            //        treeList[i].Draw(state);
+
+            //base.Draw(state);
+        }
+
+        public void changeObjectFromZone(Zone previousZone, Zone newZone, GameObject gameObject)
+        {
+            ZoneChangingObject change = new ZoneChangingObject();
+            change.previousZone = previousZone;
+            change.newZone = newZone;
+            change.gameObject = gameObject;
+
+            zoneChanges.Add(change);
+        }
+        public class Zone
+        {
+            public Land land;
+            public List<GameObject> objectList;
+            public Vector2 position;
+            public float effectRadius;
+            public float zoneRadius;
+
+            public Zone(Vector2 position, float zoneRadius, Land land)
+            {
+                this.land = land;
+                this.position = position;
+                this.zoneRadius = zoneRadius;
+
+                objectList = new List<GameObject>();
+            }
+
+            public void Update(UpdateState state)
+            {
+                Zone newZone;
+                for (int i = 0; i < objectList.Count; i++)
                 {
-                    x = i - tileArea.X / 2 + tileCenter.X;
-                    y = j - tileArea.Y / 2 + tileCenter.Y;
-
-                    if (x >= 0 && x < widthInTiles && y >= 0 && y < heightInTiles)
-                        tiles[x, y].Draw(state);
+                    objectList[i].Update(state);
+                    newZone = land.getZoneFromPosition(objectList[i].position);
+                    if (newZone != this)
+                    {
+                        land.changeObjectFromZone(this, newZone, objectList[i]);
+                    }
                 }
-
-            for (int i = 0; i < mountainList.Count; i++)
-                if ((mountainList[i].position - state.currentCamera.position).Length() < state.currentCamera.diagonal.Length() + mountainList[i].radius)
-                    mountainList[i].Draw(state);
-
-            for (int i = 0; i < treeList.Count; i++)
-                if ((treeList[i].position - state.currentCamera.position).Length() < state.currentCamera.diagonal.Length() + treeList[i].radius)
-                    treeList[i].Draw(state);
-
-            base.Draw(state);
+            }
+            public void Draw(DrawState state)
+            {
+                for (int i = 0; i < objectList.Count; i++)
+                    objectList[i].Draw(state);
+            }
+        }
+        public struct ZoneChangingObject
+        {
+            public Zone previousZone;
+            public Zone newZone;
+            public GameObject gameObject;
         }
 
         public void addContentRequirer(LandContentRequirer requirer)

@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace FightLands
 {
-    class HumanPlayer : Human , Controlable, Land.LandContentRequirer
+    class HumanPlayer : Human , Controlable, Land.LandContentRequirer, Land.LandUpdateNode
     {
         DrawableTexture guy;
 
@@ -89,10 +89,18 @@ namespace FightLands
 
         public float LandContentRequirerRadius(Land land)
         {
-            return 150f;
+            return 350f;
+        }
+        public Vector2 LandContentRequirerPosition(Land land)
+        {
+            return position;
         }
 
-        public Vector2 LandContentRequirerPosition(Land land)
+        public float LandUpdateNodeRadius(Land land)
+        {
+            return 50f;
+        }
+        public Vector2 LandUpdateNodePosition(Land land)
         {
             return position;
         }
