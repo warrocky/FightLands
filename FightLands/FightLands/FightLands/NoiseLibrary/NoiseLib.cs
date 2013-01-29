@@ -421,7 +421,7 @@ namespace FightLands
 
         protected static Vector2 randVect(Random rdm)
         {
-            double alpha = rdm.NextDouble() * 2 * Math.PI;
+            double alpha = rdm.NextDouble() * 2 * Math.PI * 4;
             return new Vector2((float)Math.Cos(alpha), (float)Math.Sin(alpha));
         }
         protected static float NGInterp(float a, float b, float x)

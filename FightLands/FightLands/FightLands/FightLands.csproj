@@ -140,7 +140,11 @@
     <Compile Include="GraphicsComponent\RenderBatch.cs" />
     <Compile Include="GraphicsComponent\RenderState.cs" />
     <Compile Include="MathHelper.cs" />
-    <Compile Include="NoiseLib.cs" />
+    <Compile Include="NoiseLibrary\LoopableNoise3D.cs" />
+    <Compile Include="NoiseLibrary\Noise3D.cs" />
+    <Compile Include="NoiseLibrary\NoiseLib.cs" />
+    <Compile Include="NoiseLibrary\Point3.cs" />
+    <Compile Include="NoiseLibrary\SumNoise3D.cs" />
     <Compile Include="PlayerManager\Controlable.cs" />
     <Compile Include="PlayerManager\LocalPlayer.cs" />
     <Compile Include="PlayerManager\Player.cs" />
