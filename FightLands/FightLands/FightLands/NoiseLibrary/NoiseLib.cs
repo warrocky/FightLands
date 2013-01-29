@@ -480,13 +480,15 @@ namespace FightLands
             float ll, lr, ur, ul, upper, lower;
             Vector2 pos = new Vector2();
             double val;
+            int gradientVectorsLengthX = gradientVectors.GetLength(0);
+            int gradientVectorsLengthY = gradientVectors.GetLength(1);
             for (int i = 0; i < samples.X; i++)
                 for (int j = 0; j < samples.Y; j++)
                 {
                     pos.X = origin.X + i * xStep;
                     pos.Y = origin.Y + j * yStep;
-                    p1 = (int)Math.Floor(pos.X);
-                    p2 = (int)Math.Floor(pos.Y);
+                    p1 = MathHelper.Clamp((int)Math.Floor(pos.X), gradientSamples.X, gradientSamples.X + gradientVectorsLengthX - 1);
+                    p2 = MathHelper.Clamp((int)Math.Floor(pos.Y), gradientSamples.Y, gradientSamples.Y + gradientVectorsLengthY - 1);
                     xDif = pos.X - (float)p1;
                     yDif = pos.Y - (float)p2;
                     p1 = p1 - gradientSamples.X;
@@ -529,6 +531,8 @@ namespace FightLands
             double val = NGInterp(lower, upper, ydif);
             //val = Math.Cos((val + 1) * Math.PI / 2);
             //val = Math.Cos((val + 1) * Math.PI / 2);
+
+            val = Math.Cos((val + 1) * Math.PI / 2);
             return filter((float)val, position * period);
         }
         public Vector2 getNodeValue(int x, int y)

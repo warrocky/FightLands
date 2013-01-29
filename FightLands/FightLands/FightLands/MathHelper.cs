@@ -155,5 +155,15 @@ namespace FightLands
                 else
                     return value;
         }
+        public static int Clamp(int value, int lowerLimit, int upperLimit)
+        {
+            if (value < lowerLimit)
+                return lowerLimit;
+            else
+                if (value > upperLimit)
+                    return upperLimit;
+                else
+                    return value;
+        }
     }
 }
