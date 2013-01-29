@@ -16,8 +16,8 @@ namespace FightLands
             border.size.X = 512;
             border.size.Y = 512;
             border.filter = Color.Black;
-            border.layer = 0.1f;
-            texture.layer = 0f;
+            border.layer = 0.501f;
+            texture.layer = 0.5f;
         }
         public override void Draw(DrawState state)
         {

@@ -52,6 +52,8 @@ namespace FightLands
             control.setAnchor(human);
             land.addContentRequirer(human);
             land.addUpdateNode(human);
+
+            //new MapPreviewer(this.world, land);
         }
         public void QuitGame()
         {
