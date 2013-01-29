@@ -487,8 +487,8 @@ namespace FightLands
                 {
                     pos.X = origin.X + i * xStep;
                     pos.Y = origin.Y + j * yStep;
-                    p1 = MathHelper.Clamp((int)Math.Floor(pos.X), gradientSamples.X, gradientSamples.X + gradientVectorsLengthX - 1);
-                    p2 = MathHelper.Clamp((int)Math.Floor(pos.Y), gradientSamples.Y, gradientSamples.Y + gradientVectorsLengthY - 1);
+                    p1 = MathHelper.Clamp((int)Math.Floor(pos.X), gradientSamples.X, gradientSamples.X + gradientVectorsLengthX - 2);
+                    p2 = MathHelper.Clamp((int)Math.Floor(pos.Y), gradientSamples.Y, gradientSamples.Y + gradientVectorsLengthY - 2);
                     xDif = pos.X - (float)p1;
                     yDif = pos.Y - (float)p2;
                     p1 = p1 - gradientSamples.X;
