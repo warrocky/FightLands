@@ -126,6 +126,7 @@
     <Compile Include="Game\Land\MountainChain.cs" />
     <Compile Include="Game\Land\TerrainTile.cs" />
     <Compile Include="Game\Land\Tree.cs" />
+    <Compile Include="Game\Land\WaterTile.cs" />
     <Compile Include="Game\MapPreviewer.cs" />
     <Compile Include="Game\MenuManager.cs" />
     <Compile Include="GraphicsComponent\DrawableText.cs" />

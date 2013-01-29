@@ -39,16 +39,16 @@ namespace FightLands
         public Noise dirtPatches;
 
         public Noise mountainChanceNoise;
-        float mountainChanceUpperValue;
+        public float mountainChanceUpperValue;
         public Noise mountainChainNoise;
-        float mountainChainUpperValue;
+        public float mountainChainUpperValue;
 
         public Noise treeChanceNoise;
-        float treeChanceTreshold;
+        public float treeChanceTreshold;
 
         public Noise waterChanceNoise;
-        float waterChanceTreshold;
-        public Noise3D waterWavesNoise;
+        public float waterChanceTreshold;
+        public LoopableNoise3D waterWavesNoise;
 
 
         private Random rdm;
@@ -57,6 +57,7 @@ namespace FightLands
         List<LandUpdateNode> updateNodes;
 
         TerrainTile[,] tiles;
+        List<WaterTile> waterTiles;
         List<Mountain> mountainList;
         List<Tree> treeList;
 
@@ -112,6 +113,9 @@ namespace FightLands
             waterChanceNoise = Noise.RegularNoise(width / 4f, 1, rdm.Next());
             waterChanceNoise.filter = (float a, Vector2 b) => (a + 1f) / 2f;
 
+            waterWavesNoise = Noise3D.TurbulenceNoise(20f, 1, new Point3(10,10,1), rdm.Next());
+            waterWavesNoise.filter = (float a, Vector3 b) => (a + 1) / 2f;
+
 
             //topography defining values
             mountainChanceUpperValue = 0.75f;
@@ -124,22 +128,29 @@ namespace FightLands
             //map structures
             treeTextures = new List<AssetTexture>();
             tiles = new TerrainTile[widthInTiles, heightInTiles];
+            waterTiles = new List<WaterTile>();
             mountainList = new List<Mountain>();
             treeList = new List<Tree>();
 
 
+            //Water evaluation
+            float[,] waterChanceValues = waterChanceNoise.getValues(new Point(200, 200), Vector2.Zero - new Vector2(width,height)/2f, new Vector2(width, height));
+            float[,] waterTileChance = waterChanceNoise.getValues(new Point(widthInTiles, heightInTiles), Vector2.Zero - new Vector2(width,height)/2f, new Vector2(width, height));
 
             //Tile creation
             Vector2 center = new Vector2(width, height) / 2f;
+            Vector2 tilePosition;
             for(int i=0;i<widthInTiles;i++)
                 for (int j = 0; j < heightInTiles; j++)
                 {
-                    tiles[i,j] = new TerrainTile(TerrainTile.TerrainType.Grassland, new Vector2(i*tileWidth, j*tileHeight) - center + tileSize/2f, tileSize, this,rdm.Next());
-                    //objectAddList.Remove(tiles[i, j]);
-                }
+                    tilePosition = new Vector2(i*tileWidth, j*tileHeight) - center + tileSize/2f;
+                    tiles[i,j] = new TerrainTile(TerrainTile.TerrainType.Grassland, tilePosition, tileSize, this,rdm.Next());
 
-            //Water evaluation
-            float[,] waterChanceValues = waterChanceNoise.getValues(new Point(200, 200), Vector2.Zero - new Vector2(width,height)/2f, new Vector2(width, height));
+                    if (waterTileChance[i, j] > waterChanceTreshold*0.8f)
+                    {
+                        waterTiles.Add(new WaterTile(tilePosition, tileSize, this, rdm.Next()));
+                    }
+                }
 
             //Mountain Creation
             Mountain m1 = null;
@@ -460,6 +471,14 @@ namespace FightLands
             foreach (LandContentRequirer requester in contentRequirers)
             {
                 foreach (TerrainTile tile in tiles)
+                {
+                    if ((tile.position - requester.LandContentRequirerPosition(this)).Length() < tileSize.Length() / 2f + requester.LandContentRequirerRadius(this))
+                    {
+                        tile.loadTexture();
+                    }
+                }
+
+                foreach (WaterTile tile in waterTiles)
                 {
                     if ((tile.position - requester.LandContentRequirerPosition(this)).Length() < tileSize.Length() / 2f + requester.LandContentRequirerRadius(this))
                     {

@@ -8,11 +8,9 @@ namespace FightLands
 {
     class LoopableNoise3D : Noise3D
     {
-        int seed;
-        float period;
-        int xLoop;
-        int yLoop;
-        int zLoop;
+        readonly int seed;
+        public readonly float period;
+        public readonly Point3 periodLoop;
 
         Vector3[, ,] gradientVectors;
 
@@ -20,12 +18,10 @@ namespace FightLands
         {
             this.seed = seed;
             this.period = period;
-            this.xLoop = periodLoop.X;
-            this.yLoop = periodLoop.Y;
-            this.zLoop = periodLoop.Z;
+            this.periodLoop = periodLoop;
 
             Random rdm = new Random(seed);
-            gradientVectors = new Vector3[xLoop, yLoop, zLoop];
+            gradientVectors = new Vector3[periodLoop.X, periodLoop.Y, periodLoop.Z];
 
             for(int i=0;i<gradientVectors.GetLength(0);i++)
                 for(int j=0;j<gradientVectors.GetLength(1);j++)
@@ -154,7 +150,7 @@ namespace FightLands
         }
         public Vector3 getGradientVector(int x, int y, int z)
         {
-            return gradientVectors[x%xLoop, y%yLoop, z%zLoop];
+            return gradientVectors[x%periodLoop.X, y%periodLoop.Y, z%periodLoop.Z];
         }
     }
 }

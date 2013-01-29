@@ -96,7 +96,7 @@ namespace FightLands
                 }
                 else
                 {
-                    colorArray[i] = Color.Blue;
+                    colorArray[i] = Color.Transparent;
                 }
 
                 //if (x == texture.Width / 2 || y == texture.Height / 2)

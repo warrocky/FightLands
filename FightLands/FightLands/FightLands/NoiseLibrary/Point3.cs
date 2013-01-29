@@ -10,5 +10,18 @@ namespace FightLands
         public int X;
         public int Y;
         public int Z;
+
+        public Point3()
+        {
+            X = 0;
+            Y = 0;
+            Z = 0;
+        }
+        public Point3(int x, int y, int z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
     }
 }
