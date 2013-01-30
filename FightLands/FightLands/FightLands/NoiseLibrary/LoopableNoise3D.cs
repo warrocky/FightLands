@@ -150,7 +150,7 @@ namespace FightLands
         }
         public Vector3 getGradientVector(int x, int y, int z)
         {
-            return gradientVectors[x%periodLoop.X, y%periodLoop.Y, z%periodLoop.Z];
+            return gradientVectors[((x%periodLoop.X)+periodLoop.X)%periodLoop.X, ((y%periodLoop.Y)+periodLoop.Y)%periodLoop.Y, ((z%periodLoop.Z)+periodLoop.Z)%periodLoop.Z];
         }
     }
 }

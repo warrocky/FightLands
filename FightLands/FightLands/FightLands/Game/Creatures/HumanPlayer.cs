@@ -89,7 +89,7 @@ namespace FightLands
 
         public float LandContentRequirerRadius(Land land)
         {
-            return 350f;
+            return 20f;
         }
         public Vector2 LandContentRequirerPosition(Land land)
         {

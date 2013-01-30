@@ -90,21 +90,24 @@ namespace FightLands
 
 
                 period *= 0.5f;
+                periodLoop.X *= 2;
+                periodLoop.Y *= 2;
+                periodLoop.Z *= 2;
             }
 
             //sumNoise.filter = (float a, Vector2 b) => { return (a + 1f) / 2f; };
             sumNoise.filter = (float a, Vector3 b) => a;
             return sumNoise;
         }
-        public static Noise RegularNoise(float period, int steps, int seed)
+        public static Noise3D RegularNoise(float period, int steps, Point3 periodLoop, int seed)
         {
             if (steps == 0)
                 throw new Exception("Can't create a noise regular noise with 0 steps");
 
-            SumNoise sumNoise = new SumNoise();
+            SumNoise3D sumNoise = new SumNoise3D();
             Random rdm = new Random(seed);
 
-            BasicGradientNoise noise;
+            LoopableNoise3D noise;
 
             float[] weights = new float[steps];
             weights[0] = 0.5f;
@@ -116,21 +119,21 @@ namespace FightLands
                 weightSum += weights[i];
             }
 
-            float weight;
-            Noise.noiseSumFunction simpleSum = (float a, float b) => { return a + b; };
+            //float weight;
+            Noise3D.noiseSumFunction simpleSum = (float a, float b) => { return a + b; };
             for (int j = 0; j < steps; j++)
             {
-                if (j < steps)
-                {
-                    noise = new BasicGradientNoise(rdm.Next(), period);
-                    weight = weights[j] + (weights[j] / weightSum) * (1f - weightSum);
-                    noise.filter = (float value, Vector2 position) => { return value * (weight); };
+                noise = new LoopableNoise3D(rdm.Next(), period, periodLoop);
+                float weight = weights[j] / weightSum;
+                noise.filter = (float value, Vector3 position) => { return value * (weight); };
 
-                    sumNoise.addNoise(noise, simpleSum);
+                sumNoise.addNoise(noise, simpleSum);
 
 
-                    period *= 0.5f;
-                }
+                period *= 0.5f;
+                periodLoop.X *= 2;
+                periodLoop.Y *= 2;
+                periodLoop.Z *= 2;
             }
 
             return sumNoise;

@@ -11,7 +11,7 @@ namespace FightLands
     {
         DrawableTexture minimap;
 
-        public MapPreviewer(World world, Land land)
+        public MapPreviewer(World world, Land land, Vector2 size)
             :base(world)
         {
             Texture2D textureBase = land.getMinimap();
@@ -19,6 +19,7 @@ namespace FightLands
             AssetTexture text = new AssetTexture(textureBase, "minimapTexture");
 
             minimap = new DrawableTexture(text, this);
+            minimap.size = size;
         }
 
         public override void Draw(DrawState state)

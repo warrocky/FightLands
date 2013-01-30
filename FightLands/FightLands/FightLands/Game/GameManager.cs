@@ -44,7 +44,7 @@ namespace FightLands
         {
             gameState = gameManagerState.inLands;
             land = new Land(0);
-            landActiveBox = new LandActiveBox(land, world);
+            landActiveBox = new LandActiveBox(land, world, new Point(600,600));
             landCamera = landActiveBox.camera;
             LandCameraControl control = new LandCameraControl(land, landCamera);
             HumanPlayer human = new HumanPlayer(land);
@@ -53,7 +53,10 @@ namespace FightLands
             land.addContentRequirer(human);
             land.addUpdateNode(human);
 
-            //new MapPreviewer(this.world, land);
+            MapPreviewer minimap = new MapPreviewer(this.world, land, new Vector2(200f,200f));
+            minimap.position = UserInterfaceManager.getCurrentUpperLeftCorner() + new Vector2(100f,100f);
+
+            landActiveBox.position.X = UserInterfaceManager.getCurrentUpperLeftCorner().X + 200f + 300f;
         }
         public void QuitGame()
         {

@@ -165,5 +165,13 @@ namespace FightLands
                 else
                     return value;
         }
+
+        public static float SCurveInterpolation(float a, float b, float x)
+        {
+            float weight = (x * x) * (3 - 2 * x); //s3
+            //float weight =  x; // linear
+            //float weight =  (float)(1f - Math.Cos(x*Math.PI)) * 0.5f; // cosine
+            return a * (1 - weight) + b * weight;
+        }
     }
 }

@@ -24,8 +24,20 @@ namespace FightLands
             get { return _center; }
         }
 
-        public int width;
-        public int height;
+        public int width
+        {
+            get { return _size.X; }
+        }
+        public int height
+        {
+            get { return _size.Y; }
+        }
+
+        Point _size;
+        public Point size
+        {
+            get{ return _size;}
+        }
 
         public List<AssetTextureContentChangeHandler> contentChangedHandlers;
 
@@ -41,8 +53,8 @@ namespace FightLands
         {
             textureContent = newContent;
             _center = new Vector2(textureContent.Width, textureContent.Height)/2f;
-            width = textureContent.Width;
-            height = textureContent.Height;
+            _size.X = textureContent.Width;
+            _size.Y = textureContent.Height;
 
             for (int i = 0; i < contentChangedHandlers.Count; i++)
                 contentChangedHandlers[i].TextureContentChanged(this);

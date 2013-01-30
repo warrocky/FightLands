@@ -61,9 +61,11 @@ namespace FightLands
 
             float dirtMergeStart = 0.5f;
             float dirtStart = 0.3f;
+            float beachPercentileTreshold = land.beachPercentileTreshold;
 
             int x, y;
             float grassRoughness, dirtRoughness, noise;
+            float normalizedWaterChance, rootedWaterChance;
             Color grassColor;
             Color dirtColor;
             for (int i = 0; i < texture.Width * texture.Height; i++)
@@ -79,25 +81,24 @@ namespace FightLands
 
                 noise = noiseData[x, y] * 0.7f + noiseDirtData[x, y] * 0.3f;
 
-                if (waterChanceData[x, y] < 0.6f)
-                {
-                    if (noise < dirtMergeStart)
-                        if (noise > dirtStart)
-                            colorArray[i] = Color.Lerp(dirtColor, grassColor, (noise - dirtStart) / (dirtMergeStart - dirtStart));
-                        else
-                            colorArray[i] = dirtColor;
+
+                if (noise < dirtMergeStart)
+                    if (noise > dirtStart)
+                        colorArray[i] = Color.Lerp(dirtColor, grassColor, (noise - dirtStart) / (dirtMergeStart - dirtStart));
                     else
-                        colorArray[i] = grassColor;
-
-
-                    if (noiseMountainChanceData[x, y] - (float)rdm.NextDouble() * 0.4f < 0.85f && noiseMountainChainData[x, y] - (float)rdm.NextDouble() * 0.08f < 0.12f)
-                        colorArray[i] = Color.Lerp(Color.Lerp(Color.DimGray, grassColor, (float)rdm.NextDouble()), colorArray[i], (float)rdm.NextDouble() * 0.2f + noise);
-
-                }
+                        colorArray[i] = dirtColor;
                 else
-                {
-                    colorArray[i] = Color.Transparent;
-                }
+                    colorArray[i] = grassColor;
+
+
+                normalizedWaterChance = (waterChanceData[x, y] - land.waterChanceTreshold * beachPercentileTreshold) / (land.waterChanceTreshold - land.waterChanceTreshold * beachPercentileTreshold);
+                rootedWaterChance = (float)(Math.Sqrt(normalizedWaterChance));
+                if (waterChanceData[x, y] > land.waterChanceTreshold * beachPercentileTreshold)
+                    colorArray[i] = Color.Lerp(Color.Lerp(colorArray[i], Color.SaddleBrown, rootedWaterChance), Color.Lerp(Color.LightYellow, Color.Orange, 0.2f), rootedWaterChance + (float)rdm.NextDouble() * 0.1f - 0.2f);
+
+
+                if (noiseMountainChanceData[x, y] - (float)rdm.NextDouble() * 0.4f < 0.85f && noiseMountainChainData[x, y] - (float)rdm.NextDouble() * 0.08f < 0.12f)
+                    colorArray[i] = Color.Lerp(Color.Lerp(Color.DimGray, grassColor, (float)rdm.NextDouble()), colorArray[i], (float)rdm.NextDouble() * 0.2f + noise);
 
                 //if (x == texture.Width / 2 || y == texture.Height / 2)
                 //    colorArray[i] = Color.Black;

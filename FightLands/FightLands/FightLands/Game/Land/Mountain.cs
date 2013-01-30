@@ -149,7 +149,7 @@ namespace FightLands
         {
             if (!textureLoaded)
             {
-                //assetTexture.setContent(createTexture());
+                assetTexture.setContent(createTexture());
                 textureLoaded = true;
             }
         }

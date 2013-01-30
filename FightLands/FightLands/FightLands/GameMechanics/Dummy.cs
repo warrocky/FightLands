@@ -24,4 +24,29 @@ namespace FightLands
             texture.Draw(state);
         }
     }
+
+    class StripDummy : GameObject
+    {
+        public DrawableTextureStrip texture;
+
+        public StripDummy(World world, String textureStrip)
+            : base(world)
+        {
+            this.texture = new DrawableTextureStrip(AssetManager.getAssetTextureStrip(textureStrip), this);
+        }
+        public StripDummy(World world, AssetTextureStrip textureStrip)
+            : base(world)
+        {
+            this.texture = new DrawableTextureStrip(textureStrip, this);
+        }
+        public override void Update(UpdateState state)
+        {
+            texture.Phase += state.elapsedTime;
+            base.Update(state);
+        }
+        public override void Draw(DrawState state)
+        {
+            texture.Draw(state);
+        }
+    }
 }

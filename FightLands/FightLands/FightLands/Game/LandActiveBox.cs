@@ -9,12 +9,12 @@ namespace FightLands
     class LandActiveBox : ActiveBox
     {
         DrawableTexture border;
-        public LandActiveBox(Land land, World world)
-            : base(world, new Camera(500, 500, land))
+        public LandActiveBox(Land land, World world, Point size)
+            : base(world, new Camera(size.X - 10, size.Y - 10, land))
         {
             border = new DrawableTexture("whiteSquare", this);
-            border.size.X = 512;
-            border.size.Y = 512;
+            border.size.X = size.X;
+            border.size.Y = size.Y;
             border.filter = Color.Black;
             border.layer = 0.501f;
             texture.layer = 0.5f;

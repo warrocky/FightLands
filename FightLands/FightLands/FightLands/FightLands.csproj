@@ -130,6 +130,7 @@
     <Compile Include="Game\MapPreviewer.cs" />
     <Compile Include="Game\MenuManager.cs" />
     <Compile Include="GraphicsComponent\DrawableText.cs" />
+    <Compile Include="GraphicsComponent\DrawableTextureStrip.cs" />
     <Compile Include="GraphicsComponent\DrawCall.cs" />
     <Compile Include="GraphicsComponent\DrawState.cs" />
     <Compile Include="FrameWorkMechanics\GameObject.cs" />

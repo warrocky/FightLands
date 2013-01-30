@@ -120,21 +120,18 @@ namespace FightLands
                 weightSum += weights[i];
             }
 
-            float weight;
+            //float weight;
             noiseSumFunction simpleSum = (float a, float b) => { return a + b; };
             for (int j = 0; j < steps; j++)
             {
-                if (j < steps)
-                {
-                    noise = new BasicGradientNoise(rdm.Next(), period);
-                    weight = weights[j] + (weights[j] / weightSum) * (1f - weightSum);
-                    noise.filter = (float value, Vector2 position) => { return value * (weight); };
+                noise = new BasicGradientNoise(rdm.Next(), period);
+                float weight = weights[j] / weightSum;
+                noise.filter = (float value, Vector2 position) => { return value * (weight); };
 
-                    sumNoise.addNoise(noise, simpleSum);
+                sumNoise.addNoise(noise, simpleSum);
 
 
-                    period *= 0.5f;
-                }
+                period *= 0.5f;
             }
 
             return sumNoise;
