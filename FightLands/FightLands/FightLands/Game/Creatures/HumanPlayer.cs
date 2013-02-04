@@ -16,7 +16,9 @@ namespace FightLands
         bool rotateLeft;
         bool rotateRight;
 
-        public HumanPlayer(World world)
+        public List<Town> townsInRadius;
+
+        public HumanPlayer(Land world)
             : base(world)
         {
             guy = new DrawableTexture("whiteSquare", this);
@@ -81,6 +83,15 @@ namespace FightLands
 
             if (rotateRight)
                 rotation += state.elapsedTime * 4f;
+
+
+            //Town Detection and Reaction
+            townsInRadius  = land.findObjectsInArea<Town>(position, 200f);
+
+            if (townsInRadius.Count != 0)
+                guy.filter = Color.Cyan;
+            else
+                guy.filter = Color.White;
         }
         public override void Draw(DrawState state)
         {

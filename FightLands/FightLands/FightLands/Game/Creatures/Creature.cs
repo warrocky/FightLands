@@ -5,13 +5,13 @@ using System.Text;
 
 namespace FightLands
 {
-    abstract class Creature : GameObject
+    abstract class Creature : LandObject
     {
         public int strength;
         public int dexterity;
         public int inteligence;
 
-        public Creature(World world)
+        public Creature(Land world)
             : base(world)
         {
 

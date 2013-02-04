@@ -104,7 +104,7 @@ namespace FightLands
                 for (int j = 0; j < verticalZoneCount; j++)
                 {
                     zonePosition = new Vector2(i * (width / (float)horizontalZoneCount), j * height / (float)verticalZoneCount) - new Vector2(width, height) / 2f + zoneSize/2f;
-                    zones[i, j] = new Zone(zonePosition, zoneSize.Length()/2f,this);
+                    zones[i, j] = new Zone(zonePosition, zoneSize.Length()/2f,this,i,j);
                     zones[i, j].effectRadius = zones[i, j].zoneRadius;
                 }
 
@@ -712,6 +712,58 @@ namespace FightLands
 
             return zones[x, y];
         }
+        public Zone safeGetZoneFromCoords(int x, int y)
+        {
+            if (x < 0)
+            {
+                if (y < 0)
+                {
+                    return zones[0, 0];
+                }
+                else if (y >= zones.GetLength(1))
+                {
+                    return zones[0, zones.GetLength(1) - 1];
+                }
+                else
+                {
+                    return zones[0, y];
+                }
+            }
+            else if (x >= zones.GetLength(0))
+            {
+                if (y < 0)
+                {
+                    return zones[zones.GetLength(0) - 1, 0];
+                }
+                else if (y >= zones.GetLength(1))
+                {
+                    return zones[zones.GetLength(0) - 1, zones.GetLength(1) - 1];
+                }
+                else
+                {
+                    return zones[zones.GetLength(0) - 1, y];
+                }
+            }
+            else if (y < 0)
+            {
+                return zones[x, 0];
+            }
+            else if (y >= zones.GetLength(1))
+            {
+                return zones[x, zones.GetLength(1) - 1];
+            }
+            else
+            {
+                return zones[x, y];
+            }
+        }
+        public bool zoneExists(int x, int y)
+        {
+            if (x < 0 || x >= zones.GetLength(0) || y < 0 || y >= zones.GetLength(1))
+                return false;
+            else
+                return true;
+        }
         public void changeObjectFromZone(Zone previousZone, Zone newZone, GameObject gameObject)
         {
             ZoneChangingObject change = new ZoneChangingObject();
@@ -723,17 +775,21 @@ namespace FightLands
         }
         public class Zone
         {
-            public Land land;
+            public readonly Land land;
             public List<GameObject> objectList;
-            public Vector2 position;
+            public readonly Vector2 position;
             public float effectRadius;
-            public float zoneRadius;
+            public readonly float zoneRadius;
+            public readonly int zoneCoordsX;
+            public readonly int zoneCoordsY;
 
-            public Zone(Vector2 position, float zoneRadius, Land land)
+            public Zone(Vector2 position, float zoneRadius, Land land, int zoneCoordsX, int zoneCoordsY)
             {
                 this.land = land;
                 this.position = position;
                 this.zoneRadius = zoneRadius;
+                this.zoneCoordsX = zoneCoordsX;
+                this.zoneCoordsY = zoneCoordsY;
 
                 objectList = new List<GameObject>();
             }
@@ -790,6 +846,68 @@ namespace FightLands
         {
             float LandUpdateNodeRadius(Land land);
             Vector2 LandUpdateNodePosition(Land land);
+        }
+
+        public List<T> findObjectsInArea<T>(Vector2 position, float radius) where T : LandObject
+        {
+            List<Zone> areaZones = getZonesFromArea(position, radius);
+            List<T> objectsInArea = new List<T>();
+
+            Zone testZone;
+            for (int i = 0; i < areaZones.Count; i++)
+            {
+                testZone = areaZones[i];
+                for (int j = 0; j < testZone.objectList.Count; j++)
+                {
+                    if (testZone.objectList[j] is T)
+                    {
+                        if ((position - testZone.objectList[j].position).Length() < radius)
+                        {
+                            objectsInArea.Add((T)testZone.objectList[j]);
+                        }
+                    }
+                }
+            }
+
+            return objectsInArea;
+        }
+        public List<Zone> getZonesFromArea(Vector2 position, float radius)
+        {
+            //TODO: optimization
+            List<Zone> areaZones = new List<Zone>();
+            Vector2 basePosition = position - new Vector2(radius, radius);
+            Zone baseZone = getZoneFromPosition(basePosition);
+
+            int xLength = (int)((2f*radius)/zoneSize.X) + 2;
+            int yLength = (int)((2f*radius)/zoneSize.Y) + 2;
+            Zone testZone;
+            for (int i = 0; i < xLength; i++)
+            {
+                if (i + baseZone.zoneCoordsX < zones.GetLength(0))
+                {
+                    for (int j = 0; j < yLength; j++)
+                    {
+                        if (j + baseZone.zoneCoordsY < zones.GetLength(1))
+                        {
+                            testZone = zones[i + baseZone.zoneCoordsX, j + baseZone.zoneCoordsY];
+                            if ((testZone.position - position).Length() < radius + testZone.zoneRadius)
+                            {
+                                areaZones.Add(testZone);
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return areaZones;
         }
     }
 }

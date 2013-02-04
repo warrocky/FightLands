@@ -7,8 +7,8 @@ namespace FightLands
 {
     class Human : Creature
     {
-        public Human(World world)
-            :base(world)
+        public Human(Land land)
+            :base(land)
         {
 
         }
