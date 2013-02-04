@@ -115,6 +115,8 @@
     <Compile Include="FrameWorkMechanics\Menu.cs" />
     <Compile Include="GameMechanics\ActiveBox.cs" />
     <Compile Include="GameMechanics\Dummy.cs" />
+    <Compile Include="GameMechanics\LandObject.cs" />
+    <Compile Include="GameMechanics\PhysicalMechanics\LandPhysicalProperties.cs" />
     <Compile Include="Game\Creatures\Creature.cs" />
     <Compile Include="Game\Creatures\Human.cs" />
     <Compile Include="Game\Creatures\HumanPlayer.cs" />
@@ -124,6 +126,7 @@
     <Compile Include="Game\Land\LandCameraControl.cs" />
     <Compile Include="Game\Land\Mountain.cs" />
     <Compile Include="Game\Land\MountainChain.cs" />
+    <Compile Include="Game\Land\Structures\Town.cs" />
     <Compile Include="Game\Land\TerrainTile.cs" />
     <Compile Include="Game\Land\Tree.cs" />
     <Compile Include="Game\Land\WaterTile.cs" />

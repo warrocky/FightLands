@@ -73,6 +73,7 @@ namespace FightLands
         List<WaterTile> waterTiles;
         List<Mountain> mountainList;
         List<Tree> treeList;
+        List<Town> townList;
 
         Zone[,] zones;
         List<ZoneChangingObject> zoneChanges;
@@ -95,7 +96,7 @@ namespace FightLands
             verticalZoneCount = heightInTiles/10;
             zones = new Zone[horizontalZoneCount,verticalZoneCount];
             zoneChanges = new List<ZoneChangingObject>();
-            terrainEvaluationPrecision = new Point((int)(width / 8f), (int)(height / 8f)); //cant be changed here
+            terrainEvaluationPrecision = new Point((int)(width / 8f), (int)(height / 8f)); //cant be changed here (WHY?: arrays are being created by cowboying)
 
             Vector2 zonePosition;
             zoneSize = new Vector2(width / (float)horizontalZoneCount,height/(float)verticalZoneCount);
@@ -155,6 +156,7 @@ namespace FightLands
             waterTiles = new List<WaterTile>();
             mountainList = new List<Mountain>();
             treeList = new List<Tree>();
+            townList = new List<Town>();
 
 
             //Water evaluation
@@ -321,8 +323,62 @@ namespace FightLands
                 } while (treeTryCounter != 0);
             }
 
+
+            //Town Creation
+            Vector2 townPosition;
+            int townID = 0;
+            AssetManager.CreateAssetSpriteFont("townLabelFont", "defaultFont");
+            for (int i = 0; i < widthInTiles * heightInTiles; i++)
+            {
+
+                townPosition = tiles[(i % widthInTiles), (i / widthInTiles)].position;
+                townPosition += new Vector2((float)rdm.NextDouble() * tileWidth, (float)rdm.NextDouble() * tileHeight);// -new Vector2(width, height) / 2f;
+
+                //check if water
+                if (checkIfBeachOrWater(townPosition))
+                {
+                    //TODO: water towns
+                }
+                else if (rdm.NextDouble() < 0.03f)
+                {
+                    minDist = float.MaxValue;
+
+                    //search the smallest distance to a tree or mountain or town
+                    for (int j = 0; j < treeList.Count; j++)
+                    {
+                        dist = (treeList[j].position - townPosition).Length() - treeList[j].radius * 0.7f;
+                        if (dist < minDist)
+                            minDist = dist;
+                    }
+                    for (int j = 0; j < mountainList.Count; j++)
+                    {
+                        dist = (mountainList[j].position - townPosition).Length() - mountainList[j].radius * 0.7f;
+                        if (dist < minDist)
+                            minDist = dist;
+                    }
+                    for (int j = 0; j < townList.Count; j++)
+                    {
+                        dist = (townList[j].position - townPosition).Length() - 500f; //500f is the lowest distance a town is allowed to have to another one
+                        if (dist < minDist)
+                            minDist = dist;
+                    }
+
+                    //check if distance is enough to create another town
+                    if (minDist > 50f)
+                    {
+
+                        //Create new town
+                        townList.Add(new Town(this, townID));
+                        townID++;
+                        townList[townList.Count - 1].position = townPosition;
+                    }
+                }
+            }
+
+
+
             //AssetTexture astt = new AssetTexture(getTreeChanceTexture(), "astt");
-            //Dummy dum = new Dummy(this, astt);
+            Dummy dum = new Dummy(this, "whiteSquare");
             //dum.texture.size = new Vector2(200f, 200f);
             //Microsoft.Xna.Framework.Graphics.Texture2D text = new Microsoft.Xna.Framework.Graphics.Texture2D(Graphics.device, 100,100*20);
             //Color[] colorArray = new Color[100*100*20];
@@ -415,14 +471,35 @@ namespace FightLands
 
             Color[] colorArray = new Color[terrainEvaluationPrecision.X * terrainEvaluationPrecision.Y];
 
+            bool[,] towns = new bool[terrainEvaluationPrecision.X, terrainEvaluationPrecision.Y];
 
             int x, y;
+
+            Vector2 tempPos;
+            for (int i = 0; i < townList.Count; i++)
+            {
+                tempPos = townList[i].position + new Vector2(width, height) * 0.5f - new Vector2(50f,50f);
+                x = (int)MathHelper.Clamp(((tempPos.X / width) * terrainEvaluationPrecision.X),0,(int)terrainEvaluationPrecision.X);
+                y = (int)MathHelper.Clamp(((tempPos.Y/ height) * terrainEvaluationPrecision.Y), 0, (int)terrainEvaluationPrecision.Y);
+
+                for(int xx = 0;xx < 10;xx++)
+                    for (int yy = 0; yy < 10; yy++)
+                    {
+                        if(x + xx < terrainEvaluationPrecision.X && y + yy < terrainEvaluationPrecision.Y)
+                            towns[x + xx, y + yy] = true;
+                    }
+            }
+
             for (int i = 0; i < colorArray.Length; i++)
             {
                 x = i % terrainEvaluationPrecision.X;
                 y = i / terrainEvaluationPrecision.X;
 
-                if (waterChanceValues[x, y] > waterChanceTreshold)
+                if (towns[x, y])
+                {
+                    colorArray[i] = Color.Orange;
+                }
+                else if (waterChanceValues[x, y] > waterChanceTreshold)
                 {
                     colorArray[i] = Color.LightBlue;
                 }

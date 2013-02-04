@@ -43,7 +43,7 @@ namespace FightLands
         public void StartGame()
         {
             gameState = gameManagerState.inLands;
-            land = new Land(0);
+            land = new Land(1);
             landActiveBox = new LandActiveBox(land, world, new Point(600,600));
             landCamera = landActiveBox.camera;
             LandCameraControl control = new LandCameraControl(land, landCamera);
