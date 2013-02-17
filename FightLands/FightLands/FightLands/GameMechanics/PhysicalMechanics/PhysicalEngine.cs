@@ -5,10 +5,9 @@ using System.Text;
 
 namespace FightLands
 {
-    class Human : LandCreature
+    static class PhysicalEngine
     {
-        public Human(Land land)
-            :base(land)
+        public static void processLandCollision(LandObject objectx, LandObject objecty)
         {
 
         }

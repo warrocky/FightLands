@@ -5,12 +5,8 @@ using System.Text;
 
 namespace FightLands
 {
-    class Human : LandCreature
+    class FightWorld : World
     {
-        public Human(Land land)
-            :base(land)
-        {
 
-        }
     }
 }

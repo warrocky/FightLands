@@ -17,6 +17,9 @@ namespace FightLands
         bool rotateRight;
 
         public List<Town> townsInRadius;
+        public List<LandCreature> creaturesInRange;
+
+        bool treeInRange;
 
         public HumanPlayer(Land world)
             : base(world)
@@ -24,6 +27,11 @@ namespace FightLands
             guy = new DrawableTexture("whiteSquare", this);
             guy.size.X = 10f;
             guy.size.Y = 10f;
+
+            physicalProperties = new LandPhysicalProperties();
+            physicalProperties.activelyColliding = true;
+            physicalProperties.radius = 10f;
+            physicalProperties.collisionType = LandCollisionTypes.Solid;
         }
 
         public void Interact(PlayerKeyboard actionKeyboard)
@@ -88,10 +96,31 @@ namespace FightLands
             //Town Detection and Reaction
             townsInRadius  = land.findObjectsInArea<Town>(position, 200f);
 
-            if (townsInRadius.Count != 0)
-                guy.filter = Color.Cyan;
+            if (treeInRange)
+            {
+                guy.filter = Color.Green;
+                treeInRange = false;
+            }
             else
-                guy.filter = Color.White;
+            {
+                if (townsInRadius.Count != 0)
+                    guy.filter = Color.Cyan;
+                else
+                    guy.filter = Color.White;
+            }
+
+            creaturesInRange = land.findObjectsInArea<LandCreature>(position, 200f);
+
+            for (int i = 0; i < creaturesInRange.Count; i++)
+            {
+                if (creaturesInRange[i].mobProperties != null && creaturesInRange[i].mobProperties.encountering)
+                {
+                    if ((creaturesInRange[i].position - position).Length() < creaturesInRange[i].mobProperties.encounterRadius + 30f)
+                    {
+                        guy.filter = Color.Red;
+                    }
+                }
+            }
         }
         public override void Draw(DrawState state)
         {
@@ -114,6 +143,16 @@ namespace FightLands
         public Vector2 LandUpdateNodePosition(Land land)
         {
             return position;
+        }
+
+        public override bool AuthorizeCollision(LandObject collider)
+        {
+            return true;
+        }
+
+        public override void CollideEffect(LandObject collider)
+        {
+
         }
     }
 }

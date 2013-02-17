@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FightLands
 {
-    class LandCameraControl : GameObject
+    class LandCameraControl : LandObject
     {
         Camera camera;
         GameObject anchor;

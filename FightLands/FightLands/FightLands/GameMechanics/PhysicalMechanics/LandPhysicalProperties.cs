@@ -8,6 +8,8 @@ namespace FightLands
     class LandPhysicalProperties
     {
         public float radius;
+        public bool activelyColliding;
+        public LandCollisionTypes collisionType;
     }
 
     public enum LandCollisionTypes

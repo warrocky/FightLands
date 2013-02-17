@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FightLands
 {
-    class WaterTile : GameObject
+    class WaterTile : LandObject
     {
         static int reduceFactor = 1;
         Land land;

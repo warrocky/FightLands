@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FightLands
 {
-    class TerrainTile : GameObject
+    class TerrainTile : LandObject
     {
         Land land;
         int seed;

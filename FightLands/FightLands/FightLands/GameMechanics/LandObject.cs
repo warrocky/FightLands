@@ -9,7 +9,9 @@ namespace FightLands
     {
 
         public float objectRadius;
-        LandPhysicalProperties physicalProperties;
+        
+        public LandPhysicalProperties physicalProperties;
+
 
         public Land land
         {
@@ -19,12 +21,16 @@ namespace FightLands
         public LandObject(Land land)
             : base(land)
         {
-            physicalProperties = new LandPhysicalProperties();
+
         }
 
-        public bool AuthorizeCollision(LandObject collider)
+        public virtual bool AuthorizeCollision(LandObject collider)
         {
             return false;
+        }
+        public virtual void CollideEffect(LandObject collider)
+        {
+
         }
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FightLands
 {
-    class Mountain : GameObject
+    class Mountain : LandObject
     {
         int seed;
         public float radius;
@@ -17,7 +17,7 @@ namespace FightLands
 
         bool textureLoaded;
 
-        public Mountain(int seed, World world, float radius)
+        public Mountain(int seed, Land world, float radius)
             :base(world)
         {
             this.seed = seed;

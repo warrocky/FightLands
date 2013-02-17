@@ -74,6 +74,7 @@ namespace FightLands
         List<Mountain> mountainList;
         List<Tree> treeList;
         List<Town> townList;
+        List<LandCreature> mobList;
 
         Zone[,] zones;
         List<ZoneChangingObject> zoneChanges;
@@ -157,6 +158,7 @@ namespace FightLands
             mountainList = new List<Mountain>();
             treeList = new List<Tree>();
             townList = new List<Town>();
+            mobList = new List<LandCreature>();
 
 
             //Water evaluation
@@ -376,9 +378,59 @@ namespace FightLands
             }
 
 
+            //Mob Creation
+            Vector2 mobPosition;
+            LandCreature mob;
+            for (int i = 0; i < widthInTiles * heightInTiles; i++)
+            {
+
+                mobPosition = tiles[(i % widthInTiles), (i / widthInTiles)].position;
+                mobPosition += new Vector2((float)rdm.NextDouble() * tileWidth, (float)rdm.NextDouble() * tileHeight);// -new Vector2(width, height) / 2f;
+
+                //check if water
+                if (checkIfBeachOrWater(mobPosition))
+                {
+                    //TODO: water mobs
+                }
+                else if (rdm.NextDouble() < 0.1f)
+                {
+                    minDist = float.MaxValue;
+
+                    //search the smallest distance to a tree or mountain or town
+                    for (int j = 0; j < treeList.Count; j++)
+                    {
+                        dist = (treeList[j].position - mobPosition).Length() - treeList[j].radius * 0.4f;
+                        if (dist < minDist)
+                            minDist = dist;
+                    }
+                    for (int j = 0; j < mountainList.Count; j++)
+                    {
+                        dist = (mountainList[j].position - mobPosition).Length() - mountainList[j].radius * 0.7f;
+                        if (dist < minDist)
+                            minDist = dist;
+                    }
+                    for (int j = 0; j < townList.Count; j++)
+                    {
+                        dist = (townList[j].position - mobPosition).Length() - 400f; //500f is the lowest distance a mob can be from a town
+                        if (dist < minDist)
+                            minDist = dist;
+                    }
+
+                    //check if distance is enough to create a mob
+                    if (minDist > 25f)
+                    {
+
+                        //Create new mob
+                        mob = new Rat(this,rdm.Next());
+                        mob.position = mobPosition;
+                        mobList.Add(mob);
+                    }
+                }
+            }
+
 
             //AssetTexture astt = new AssetTexture(getTreeChanceTexture(), "astt");
-            Dummy dum = new Dummy(this, "whiteSquare");
+            LandDummy dum = new LandDummy(this, "whiteSquare");
             //dum.texture.size = new Vector2(200f, 200f);
             //Microsoft.Xna.Framework.Graphics.Texture2D text = new Microsoft.Xna.Framework.Graphics.Texture2D(Graphics.device, 100,100*20);
             //Color[] colorArray = new Color[100*100*20];
@@ -607,7 +659,10 @@ namespace FightLands
                 foreach (Zone zone in zones)
                 {
                     if ((zone.position - node.LandUpdateNodePosition(this)).Length() < zone.effectRadius + node.LandUpdateNodeRadius(this))
+                    {
                         zone.Update(state);
+                        zone.checkCollisions(state);
+                    }
                 }
             }
 
@@ -712,6 +767,12 @@ namespace FightLands
 
             return zones[x, y];
         }
+        /// <summary>
+        /// This function retrieves a zona by campling its coords on the beggining and length of the zone matrix.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
         public Zone safeGetZoneFromCoords(int x, int y)
         {
             if (x < 0)
@@ -764,6 +825,36 @@ namespace FightLands
             else
                 return true;
         }
+        public List<Zone> getAdjacentZones(int zoneCoordsX, int zoneCoordsY)
+        {
+            List<Zone> adjacents = new List<Zone>();
+
+            if (zoneExists(zoneCoordsX - 1, zoneCoordsY - 1))
+                adjacents.Add(zones[zoneCoordsX - 1, zoneCoordsY - 1]);
+
+            if (zoneExists(zoneCoordsX, zoneCoordsY - 1))
+                adjacents.Add(zones[zoneCoordsX, zoneCoordsY - 1]);
+
+            if (zoneExists(zoneCoordsX + 1, zoneCoordsY - 1))
+                adjacents.Add(zones[zoneCoordsX + 1, zoneCoordsY - 1]);
+
+            if (zoneExists(zoneCoordsX - 1, zoneCoordsY))
+                adjacents.Add(zones[zoneCoordsX - 1, zoneCoordsY]);
+
+            if (zoneExists(zoneCoordsX + 1, zoneCoordsY))
+                adjacents.Add(zones[zoneCoordsX + 1, zoneCoordsY]);
+
+            if (zoneExists(zoneCoordsX - 1, zoneCoordsY + 1))
+                adjacents.Add(zones[zoneCoordsX - 1, zoneCoordsY + 1]);
+
+            if (zoneExists(zoneCoordsX, zoneCoordsY + 1))
+                adjacents.Add(zones[zoneCoordsX, zoneCoordsY + 1]);
+
+            if (zoneExists(zoneCoordsX + 1, zoneCoordsY + 1))
+                adjacents.Add(zones[zoneCoordsX + 1, zoneCoordsY + 1]);
+
+            return adjacents;
+        }
         public void changeObjectFromZone(Zone previousZone, Zone newZone, GameObject gameObject)
         {
             ZoneChangingObject change = new ZoneChangingObject();
@@ -804,6 +895,60 @@ namespace FightLands
                     if (newZone != this)
                     {
                         land.changeObjectFromZone(this, newZone, objectList[i]);
+                    }
+                }
+            }
+            public void checkCollisions(UpdateState state)
+            {
+                List<Zone> adjacentZones = land.getAdjacentZones(zoneCoordsX, zoneCoordsY);
+                LandObject checkingObject;
+                LandObject reactionObject;
+
+                for (int i = 0; i < objectList.Count; i++)
+                {
+                    checkingObject = (LandObject)objectList[i];
+                    if (checkingObject.physicalProperties != null && checkingObject.physicalProperties.activelyColliding)
+                    {
+                        for (int j = 0; j < objectList.Count; j++)
+                        {
+                            if (j == i)
+                                continue;
+
+                            reactionObject = (LandObject)objectList[j];
+
+                            if (reactionObject.physicalProperties != null)
+                            {
+                                if ((reactionObject.position - checkingObject.position).Length() < checkingObject.physicalProperties.radius + reactionObject.physicalProperties.radius)
+                                {
+                                    if (reactionObject.AuthorizeCollision(checkingObject) && checkingObject.AuthorizeCollision(reactionObject))
+                                    {
+                                        checkingObject.CollideEffect(reactionObject);
+                                        reactionObject.CollideEffect(checkingObject);
+                                        PhysicalEngine.processLandCollision(checkingObject, reactionObject);
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int k = 0; k < adjacentZones.Count;k++)
+                        {
+                            for(int j=0;j<adjacentZones[k].objectList.Count;j++)
+                            {
+                                reactionObject = (LandObject)adjacentZones[k].objectList[j];
+                                if (reactionObject.physicalProperties != null)
+                                {
+                                    if ((reactionObject.position - checkingObject.position).Length() < checkingObject.physicalProperties.radius + reactionObject.physicalProperties.radius)
+                                    {
+                                        if (reactionObject.AuthorizeCollision(checkingObject) && checkingObject.AuthorizeCollision(reactionObject))
+                                        {
+                                            checkingObject.CollideEffect(reactionObject);
+                                            reactionObject.CollideEffect(checkingObject);
+                                            PhysicalEngine.processLandCollision(checkingObject, reactionObject);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

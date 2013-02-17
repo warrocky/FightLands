@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FightLands
 {
-    class Tree : GameObject
+    class Tree : LandObject
     {
         int seed;
         DrawableTexture drawTexture;
@@ -31,6 +31,11 @@ namespace FightLands
             shadowTexture.layer = 0.1f;
             shadowTexture.rotation = drawTexture.rotation;
             shadowTexture.filter = Color.Lerp(Color.Transparent,Color.Black, 0.9f);
+
+            physicalProperties = new LandPhysicalProperties();
+            physicalProperties.activelyColliding = false;
+            physicalProperties.collisionType = LandCollisionTypes.Static;
+            physicalProperties.radius = radius*0.7f;
         }
 
         public override void Draw(DrawState state)
@@ -44,6 +49,10 @@ namespace FightLands
             oscilation += state.elapsedTime/4f;
             drawTexture.position.X = (float)Math.Cos(oscilation) * 2f;
             shadowTexture.position = drawTexture.position - new Vector2(1f, -1f)*(radius/2f + 1f)*0.3f;
+
+            drawTexture.rotation += state.elapsedTime/8f;
+
+            drawTexture.filter = Color.Lerp(drawTexture.filter,Color.White,state.elapsedTime);
         }
 
 
@@ -163,5 +172,14 @@ namespace FightLands
             return texture;
         }
 
+        public override bool AuthorizeCollision(LandObject collider)
+        {
+            return true;
+        }
+
+        public override void CollideEffect(LandObject collider)
+        {
+            drawTexture.filter = Color.Red;
+        }
     }
 }

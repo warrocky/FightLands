@@ -5,10 +5,10 @@ using System.Text;
 
 namespace FightLands
 {
-    class Human : LandCreature
+    class FightObject : GameObject
     {
-        public Human(Land land)
-            :base(land)
+        public FightObject(FightWorld world)
+            : base(world)
         {
 
         }
