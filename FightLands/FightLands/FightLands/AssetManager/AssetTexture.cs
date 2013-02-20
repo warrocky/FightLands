@@ -62,7 +62,7 @@ namespace FightLands
 
         public AssetTexture createAssetCopy(String name)
         {
-            Texture2D contentCopy = new Texture2D(textureContent.GraphicsDevice, textureContent.Width, textureContent.Height);
+           Texture2D contentCopy = new Texture2D(textureContent.GraphicsDevice, textureContent.Width, textureContent.Height);
 
             Color[] content = new Color[textureContent.Width*textureContent.Height];
             textureContent.GetData<Color>(content);

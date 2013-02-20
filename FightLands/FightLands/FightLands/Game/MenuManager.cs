@@ -41,6 +41,7 @@ namespace FightLands
         public class MainMenu : Menu<MainMenu.DefaultEntry>, Controlable
         {
             GameManager manager;
+            DrawableTexture background;
 
             public MainMenu(GameManager manager)
                 :base(manager.world)
@@ -52,6 +53,11 @@ namespace FightLands
 
                 entries[0].position = new Vector2(0, 100);
                 entries[1].position = new Vector2(0, -100);
+
+                background = new DrawableTexture("whiteSquare", this);
+                background.size = UserInterfaceManager.getDiagonalOnWorld();
+                background.filter = Color.Black;
+                background.layer = 1f;
             }
 
             public class DefaultEntry : GameObject, MenuEntry
@@ -66,6 +72,7 @@ namespace FightLands
 
                     AssetSpriteFont font = AssetManager.getAssetSpriteFont("menuHeaderFont");
                     texture = new DrawableText(font, this, text, Color.Gray);
+                    texture.layer = 0.5f;
                 }
                 public virtual void Select()
                 {}
@@ -117,6 +124,13 @@ namespace FightLands
 
                 if (actionKeyboard.keyboard[ActionKeyType.Space].JustPressed)
                     SelectCurrentEntry();
+            }
+
+            public override void Draw(DrawState state)
+            {
+                base.Draw(state);
+
+                background.Draw(state);
             }
         }
     }

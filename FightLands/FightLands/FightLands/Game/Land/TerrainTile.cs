@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Threading;
 
 namespace FightLands
 {
@@ -11,11 +12,19 @@ namespace FightLands
     {
         Land land;
         int seed;
+        Object changingTextureLock = new Object();
         DrawableTexture texture;
         AssetTexture terrainTexture;
         Vector2 size;
 
+        bool loadingTexture;
+        Object loadingLock = new Object();
+
         bool textureLoaded;
+        Object textureLoadedLock = new Object();
+
+        Object textureContentLock = new Object();
+        Texture2D textureContent;
 
         public enum TerrainType { Grassland };
 
@@ -33,13 +42,53 @@ namespace FightLands
             this.size = size;
 
             textureLoaded = false;
+            loadingTexture = false;
+        }
+        public bool isTextureLoaded()
+        {
+            lock (textureLoadedLock)
+            {
+                return textureLoaded;
+            }
+        }
+        public bool isTextureLoading()
+        {
+            lock (loadingLock)
+            {
+                return loadingTexture;
+            }
         }
         public void loadTexture()
         {
-            if (!textureLoaded)
+            lock (textureLoadedLock)
             {
-                terrainTexture.setContent(createTexture());
-                textureLoaded = true;
+                lock (loadingLock)
+                {
+                    if (!(loadingTexture || textureLoaded))
+                    {
+                        loadingTexture = true;
+                        Thread loader = new Thread(new ThreadStart(startTextureLoad));
+                        loader.Start();
+                    }
+                }
+            }
+        }
+        private void startTextureLoad()
+        {
+            Texture2D text = createTexture();
+
+            lock (textureContentLock)
+            {
+                textureContent = text;
+            }
+
+            lock (textureLoadedLock)
+            {
+                lock (loadingLock)
+                {
+                    textureLoaded = true;
+                    loadingTexture = false;
+                }
             }
         }
         private Texture2D createTexture()
@@ -50,10 +99,10 @@ namespace FightLands
             float[,] noiseData = land.grassLandGreeness.getValues(new Point(texture.Width, texture.Height), position - size/2f, size);
             float[,] noiseDirtData = land.dirtPatches.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
             
-            //float[,] noiseMountainChanceData = land.mountainChance.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
-            float[,] noiseMountainChanceData = new float[texture.Width, texture.Height];
-            //float[,] noiseMountainChainData = land.mountainChainNoise.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
-            float[,] noiseMountainChainData = new float[texture.Width, texture.Height];
+            float[,] noiseMountainChanceData = land.mountainChanceNoise.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
+            //float[,] noiseMountainChanceData = new float[texture.Width, texture.Height];
+            float[,] noiseMountainChainData = land.mountainChainNoise.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size);
+            //float[,] noiseMountainChainData = new float[texture.Width, texture.Height];
 
             float[,] waterChanceData = land.waterChanceNoise.getValues(new Point(texture.Width, texture.Height), position - size / 2f, size); ;
 
@@ -68,6 +117,7 @@ namespace FightLands
             float normalizedWaterChance, rootedWaterChance;
             Color grassColor;
             Color dirtColor;
+            float mountainDist;
             for (int i = 0; i < texture.Width * texture.Height; i++)
             {
                 x = i % texture.Width;
@@ -97,8 +147,17 @@ namespace FightLands
                     colorArray[i] = Color.Lerp(Color.Lerp(colorArray[i], Color.SaddleBrown, rootedWaterChance), Color.Lerp(Color.LightYellow, Color.Orange, 0.2f), rootedWaterChance + (float)rdm.NextDouble() * 0.1f - 0.2f);
 
 
-                if (noiseMountainChanceData[x, y] - (float)rdm.NextDouble() * 0.4f < 0.85f && noiseMountainChainData[x, y] - (float)rdm.NextDouble() * 0.08f < 0.12f)
-                    colorArray[i] = Color.Lerp(Color.Lerp(Color.DimGray, grassColor, (float)rdm.NextDouble()), colorArray[i], (float)rdm.NextDouble() * 0.2f + noise);
+                if (noiseMountainChanceData[x, y] < land.mountainChanceUpperValue*1.2f && noiseMountainChainData[x, y] < land.mountainChainUpperValue*1.2f)
+                {
+                    mountainDist = (land.mountainChanceUpperValue*1.2f - noiseMountainChanceData[x, y]) / (land.mountainChanceUpperValue*1.2f);
+                    if (mountainDist > (land.mountainChainUpperValue*1.2f - noiseMountainChainData[x, y]) / (land.mountainChainUpperValue*1.2f))
+                        mountainDist = (land.mountainChainUpperValue*1.2f - noiseMountainChainData[x, y]) / (land.mountainChainUpperValue*1.2f);
+
+                    colorArray[i] = Color.Lerp( colorArray[i],Color.DimGray, mountainDist*2f);
+                }
+
+                //if (noiseMountainChanceData[x, y] - (float)rdm.NextDouble() * 0.4f < 0.85f && noiseMountainChainData[x, y] - (float)rdm.NextDouble() * 0.08f < 0.12f)
+                //    colorArray[i] = Color.Lerp(Color.Lerp(Color.DimGray, grassColor, (float)rdm.NextDouble()), colorArray[i], (float)rdm.NextDouble() * 0.2f + noise);
 
                 //if (x == texture.Width / 2 || y == texture.Height / 2)
                 //    colorArray[i] = Color.Black;
@@ -108,6 +167,20 @@ namespace FightLands
 
             return texture;
         }
+
+        //This Update overload should be avoided to spare resources
+        public override void Update(UpdateState state)
+        {
+            lock (textureContentLock)
+            {
+                if (textureContent != null)
+                {
+                    terrainTexture.setContent(textureContent);
+                    textureContent = null;
+                }
+            }
+        }
+
         public override void Draw(DrawState state)
         {
             texture.Draw(state);

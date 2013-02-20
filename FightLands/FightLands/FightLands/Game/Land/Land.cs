@@ -3,16 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using System.Threading;
 
 namespace FightLands
 {
     class Land : World
     {
+        private Object beingLoadedLock = new Object();
+        private bool beingLoaded;
+
+        private Object loadedLock = new Object();
+        private bool loaded;
+
+        private Object checkLoadStatusLock = new Object();
+        private String loadStatus = "Unloaded";
+
+        Zone[,] zones;
+        int horizontalZoneCount;
+        int verticalZoneCount;
+        Vector2 zoneSize;
+
         public int widthInTiles;
         public int heightInTiles;
-
         public Vector2 tileSize;
 
+
+        //Propertys
         public float tileWidth
         {
             get { return tileSize.X; }
@@ -35,6 +51,8 @@ namespace FightLands
 
         int seed;
 
+
+        //Topography defining noises and values
         public Noise grassLandGreeness;
         public Noise dirtPatches;
 
@@ -64,11 +82,7 @@ namespace FightLands
         Point terrainEvaluationPrecision;
 
 
-        private Random rdm;
-
-        List<LandContentRequirer> contentRequirers;
-        List<LandUpdateNode> updateNodes;
-
+        //Map structure
         TerrainTile[,] tiles;
         List<WaterTile> waterTiles;
         List<Mountain> mountainList;
@@ -76,31 +90,38 @@ namespace FightLands
         List<Town> townList;
         List<LandCreature> mobList;
 
-        Zone[,] zones;
-        List<ZoneChangingObject> zoneChanges;
-        int horizontalZoneCount;
-        int verticalZoneCount;
-        Vector2 zoneSize;
-
+        //Content structures
         List<AssetTexture> treeTextures;
+
+        //dynamic structures
+        List<ZoneChangingObject> zoneChanges;
+
+        List<LandContentRequirer> contentRequirers;
+        List<LandUpdateNode> updateNodes;
 
         public Land(int seed)
         {
             this.seed = seed;
-            rdm = new Random(seed);
-            contentRequirers = new List<LandContentRequirer>();
-            updateNodes = new List<LandUpdateNode>();
-            widthInTiles = 50;
-            heightInTiles = 50;
+            Random rdm = new Random(seed);
+
+            horizontalZoneCount = 5;
+            verticalZoneCount = 5;
+            widthInTiles = 10*horizontalZoneCount; //10 width tiles per zone
+            heightInTiles = 10*verticalZoneCount; //10 height tiles per zone
             tileSize = new Vector2(100f, 100f);
-            horizontalZoneCount = widthInTiles/10;
-            verticalZoneCount = heightInTiles/10;
+            zoneSize = new Vector2(width / (float)horizontalZoneCount, height / (float)verticalZoneCount);
             zones = new Zone[horizontalZoneCount,verticalZoneCount];
-            zoneChanges = new List<ZoneChangingObject>();
             terrainEvaluationPrecision = new Point((int)(width / 8f), (int)(height / 8f)); //cant be changed here (WHY?: arrays are being created by cowboying)
 
+
+
+            zoneChanges = new List<ZoneChangingObject>();
+
+            contentRequirers = new List<LandContentRequirer>();
+            updateNodes = new List<LandUpdateNode>();
+
+
             Vector2 zonePosition;
-            zoneSize = new Vector2(width / (float)horizontalZoneCount,height/(float)verticalZoneCount);
             for(int i=0;i<horizontalZoneCount;i++)
                 for (int j = 0; j < verticalZoneCount; j++)
                 {
@@ -135,10 +156,6 @@ namespace FightLands
             waterWavesLoop = new Point3(20, 20, 3);
             waterWavesNoise = Noise3D.TurbulenceNoise(waterWavesDistancePeriod, 2, waterWavesLoop, rdm.Next());
             waterWavesNoise.filter = (float a, Vector3 b) => (a + 1) / 2f;
-            Point3 waterWavesSampling = new Point3((int)(waterWavesDistancePeriod*waterWavesLoop.X),(int)(waterWavesDistancePeriod*waterWavesLoop.Y),waterWavesFrameCount);
-            float waterWaveZArea = waterWavesDistancePeriod * waterWavesLoop.Z - waterWavesDistancePeriod * waterWavesLoop.Z / waterWavesFrameCount; //to destroy repeated last frame
-            Vector3 waterWavesArea = new Vector3(waterWavesDistancePeriod * waterWavesLoop.X, waterWavesDistancePeriod * waterWavesLoop.Y, waterWaveZArea);
-            waterWaveValues = waterWavesNoise.getValues(waterWavesSampling, Vector3.Zero, waterWavesArea);
 
 
             //topography defining values
@@ -160,36 +177,142 @@ namespace FightLands
             townList = new List<Town>();
             mobList = new List<LandCreature>();
 
+        }
 
+        public bool isBeingLoaded()
+        {
+            lock (beingLoadedLock)
+            {
+                return beingLoaded;
+            }
+        }
+
+        public bool isLoaded()
+        {
+            lock (loadedLock)
+            {
+                return loaded;
+            }
+        }
+
+        private void setLoadStatus(String status)
+        {
+            lock (checkLoadStatusLock)
+            {
+                loadStatus = status;
+            }
+        }
+        public String checkLoadStatus()
+        {
+            String returnValue;
+
+            lock (checkLoadStatusLock)
+            {
+                returnValue = loadStatus;
+            }
+
+            return returnValue;
+        }
+
+        public void loadMap()
+        {
+            if (isBeingLoaded() || isLoaded())
+                throw new Exception("Attempt at loading a map twice.");
+
+            Thread mapLoader = new Thread(new ThreadStart(startMapLoad));
+            mapLoader.Start();
+        }
+
+        private void startMapLoad()
+        {
+            lock (beingLoadedLock)
+            {
+                lock (loadedLock)
+                {
+                    if (beingLoaded || loaded)
+                        throw new Exception("Attempt at loading map twice.(internal)");
+
+                    beingLoaded = true;
+                }
+            }
+
+            setLoadStatus("Evaluating Noises");
+            noiseEvaluations();
+
+            setLoadStatus("Creating Tiles");
+            createTiles();
+
+            setLoadStatus("Loading Mountains");
+            loadMountains();
+
+            setLoadStatus("Loading Trees");
+            loadTrees();
+
+            setLoadStatus("Loading Towns");
+            loadTowns();
+
+            setLoadStatus("Loading Mobs");
+            loadMobs();
+
+            lock (beingLoadedLock)
+            {
+                lock (loadedLock)
+                {
+                    beingLoaded = false;
+                    loaded = true;
+                }
+            }
+        }
+
+        private void noiseEvaluations()
+        {
             //Water evaluation
-            waterChanceValues = waterChanceNoise.getValues(new Point((int)(width/8f), (int)(height/8f)), Vector2.Zero - new Vector2(width,height)/2f, new Vector2(width, height));
-            float[,] waterTileChance = waterChanceNoise.getValues(new Point(widthInTiles, heightInTiles), Vector2.Zero - new Vector2(width,height)/2f, new Vector2(width, height));
+            waterChanceValues = waterChanceNoise.getValues(new Point((int)(width / 8f), (int)(height / 8f)), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
+            // WARNING: mountainChainValues and mountainChanceValues must have same array size because of evaluation function using same array coordinates for both.
+            mountainChainValues = mountainChainNoise.getValues(new Point((int)(width / 8f), (int)(height / 8f)), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
+            mountainChanceValues = mountainChanceNoise.getValues(new Point((int)(width / 8f), (int)(height / 8f)), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
+            treeChanceValues = treeChanceNoise.getValues(new Point((int)(width / 8f), (int)(height / 8f)), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
+
+            Point3 waterWavesSampling = new Point3((int)(waterWavesDistancePeriod * waterWavesLoop.X), (int)(waterWavesDistancePeriod * waterWavesLoop.Y), waterWavesFrameCount);
+            float waterWaveZArea = waterWavesDistancePeriod * waterWavesLoop.Z - waterWavesDistancePeriod * waterWavesLoop.Z / waterWavesFrameCount; //to destroy repeated last frame
+            Vector3 waterWavesArea = new Vector3(waterWavesDistancePeriod * waterWavesLoop.X, waterWavesDistancePeriod * waterWavesLoop.Y, waterWaveZArea);
+            waterWaveValues = waterWavesNoise.getValues(waterWavesSampling, Vector3.Zero, waterWavesArea);
+        }
+
+        private void createTiles()
+        {
+            Random rdm = new Random(seed + 3);
+
+            float[,] waterTileChance = waterChanceNoise.getValues(new Point(widthInTiles, heightInTiles), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
 
             //Tile creation
             Vector2 center = new Vector2(width, height) / 2f;
             Vector2 tilePosition;
-            for(int i=0;i<widthInTiles;i++)
+            for (int i = 0; i < widthInTiles; i++)
                 for (int j = 0; j < heightInTiles; j++)
                 {
-                    tilePosition = new Vector2(i*tileWidth, j*tileHeight) - center + tileSize/2f;
-                    tiles[i,j] = new TerrainTile(TerrainTile.TerrainType.Grassland, tilePosition, tileSize, this,rdm.Next());
+                    tilePosition = new Vector2(i * tileWidth, j * tileHeight) - center + tileSize / 2f;
+                    tiles[i, j] = new TerrainTile(TerrainTile.TerrainType.Grassland, tilePosition, tileSize, this, rdm.Next());
 
-                    if (waterTileChance[i, j] > waterChanceTreshold*0.9f)
+                    if (waterTileChance[i, j] > waterChanceTreshold * 0.9f)
                     {
                         waterTiles.Add(new WaterTile(tilePosition, tileSize, this, rdm.Next()));
                     }
                 }
+        }
+
+        private void loadMountains()
+        {
+            Random rdm = new Random(seed + 101);
 
             //Mountain Creation
             Mountain m1 = null;
             Vector2 mountainPos;
             float radius, dist, minDist = float.MaxValue;
-            // WARNING: mountainChainValues and mountainChanceValues must have same array size because of evaluation function using same array coordinates for both.
-            mountainChainValues = mountainChainNoise.getValues(new Point((int)(width / 8f), (int)(height / 8f)), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
-            mountainChanceValues = mountainChanceNoise.getValues(new Point((int)(width / 8f), (int)(height / 8f)), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
             int mountainTryCounter = 0;
             Vector2 mountainChanceAndChain;
-            for (int i = 0; i < widthInTiles*heightInTiles; i++)
+            float mountainDist;
+            for (int i = 0; i < widthInTiles * heightInTiles; i++)
             {
                 mountainTryCounter = 5;
                 do
@@ -219,7 +342,7 @@ namespace FightLands
                         //search the smallest distance to a mountain
                         for (int j = 0; j < mountainList.Count; j++)
                         {
-                            dist = (mountainList[j].position - mountainPos).Length() - mountainList[j].radius*0.7f;
+                            dist = (mountainList[j].position - mountainPos).Length() - mountainList[j].radius * 0.7f;
                             if (dist < minDist)
                                 minDist = dist;
                         }
@@ -227,8 +350,13 @@ namespace FightLands
                         //test value to avoid collision among mountains - should be 0
                         if (minDist > 20f)
                         {
+                            mountainDist = (mountainChanceUpperValue - mountainChanceAndChain.X) / (mountainChanceUpperValue);
+                            if (mountainDist > (mountainChainUpperValue - mountainChanceAndChain.Y) / (mountainChainUpperValue))
+                                mountainDist = (mountainChainUpperValue - mountainChanceAndChain.Y) / (mountainChainUpperValue);
+
                             //Create random radius
-                            radius = MathHelper.getNextNormalDistributedFloat(3f, 1f, rdm) * (10f + 20f*(1f - mountainChanceAndChain.Y));
+                            //radius = MathHelper.getNextNormalDistributedFloat(3f, 1f, rdm) * (10f + 20f * (1f - mountainChanceAndChain.Y));
+                            radius = MathHelper.getNextNormalDistributedFloat(3f, 1f, rdm) * (10f + 20f * (mountainDist));
 
                             //if radius collides with other mountain, reduce the radius.
                             if (radius > minDist)
@@ -248,20 +376,23 @@ namespace FightLands
                     //se não foi gerada nenhuma montanha, reduzir um valor no counter.
                     if (m1 == null)
                         mountainTryCounter--;
-                }while(mountainTryCounter != 0);
+                } while (mountainTryCounter != 0);
             }
+        }
 
-
+        private void loadTrees()
+        {
             //tree generation
             generateTreeTextures();
+
+            Random rdm = new Random(seed + 51);
+
             Tree t1 = null;
             Vector2 treePos;
-            //float radius, dist, minDist = float.MaxValue;
-            minDist = float.MaxValue;
-            treeChanceValues = treeChanceNoise.getValues(new Point((int)(width/8f), (int)(height/8f)), Vector2.Zero - new Vector2(width, height) / 2f, new Vector2(width, height));
-            //int arrayX, arrayY;
+            float minDist = float.MaxValue;
+            float dist;
             int treeTryCounter = 0;
-            float treeChance;
+            float treeChance, radius;
             for (int i = 0; i < widthInTiles * heightInTiles; i++)
             {
                 treeTryCounter = 5;
@@ -324,12 +455,18 @@ namespace FightLands
                         treeTryCounter--;
                 } while (treeTryCounter != 0);
             }
+        }
 
-
+        private void loadTowns()
+        {
             //Town Creation
             Vector2 townPosition;
             int townID = 0;
             AssetManager.CreateAssetSpriteFont("townLabelFont", "defaultFont");
+
+            Random rdm = new Random(seed + 3);
+
+            float minDist, dist;
             for (int i = 0; i < widthInTiles * heightInTiles; i++)
             {
 
@@ -377,10 +514,17 @@ namespace FightLands
                 }
             }
 
+        }
 
+        private void loadMobs()
+        {
             //Mob Creation
             Vector2 mobPosition;
             LandCreature mob;
+            float minDist, dist;
+
+            Random rdm = new Random(seed + 29);
+
             for (int i = 0; i < widthInTiles * heightInTiles; i++)
             {
 
@@ -421,35 +565,15 @@ namespace FightLands
                     {
 
                         //Create new mob
-                        mob = new Rat(this,rdm.Next());
+                        mob = new Rat(this, rdm.Next());
                         mob.position = mobPosition;
                         mobList.Add(mob);
                     }
                 }
             }
-
-
-            //AssetTexture astt = new AssetTexture(getTreeChanceTexture(), "astt");
-            LandDummy dum = new LandDummy(this, "whiteSquare");
-            //dum.texture.size = new Vector2(200f, 200f);
-            //Microsoft.Xna.Framework.Graphics.Texture2D text = new Microsoft.Xna.Framework.Graphics.Texture2D(Graphics.device, 100,100*20);
-            //Color[] colorArray = new Color[100*100*20];
-            //int x,y,k;
-            //for(int i=0;i<colorArray.Length;i++)
-            //{
-            //    x = i%text.Width;
-            //    y = (i/text.Width)%100;
-            //    k = (i/text.Width)/100;
-
-            //    colorArray[i] = Color.Lerp(Color.Black,Color.White, waterWaveValues[x,y,k]);
-            //}
-            //text.SetData<Color>(colorArray);
-            //AssetTextureStrip strip = new AssetTextureStrip("ola", text, AssetTextureStrip.StripOrientation.TopToBottom, new Point(100, 100));
-            //StripDummy sDum = new StripDummy(this, strip);
-            //sDum.texture.layer = 0f;
-            //sDum.texture.period = waterWavesTimePeriod;
         }
 
+        //outdated
         private Microsoft.Xna.Framework.Graphics.Texture2D getMountainChanceTexture()
         {
             float[,] array2 = mountainChainNoise.getValues(new Point(200, 200), Vector2.Zero, new Vector2(width, height));
@@ -482,7 +606,7 @@ namespace FightLands
 
             return text;
         }
-
+        //outdated
         private Microsoft.Xna.Framework.Graphics.Texture2D getTreeChanceTexture()
         {
             float[,] array2 = treeChanceNoise.getValues(new Point(200, 200), Vector2.Zero, new Vector2(width, height));
@@ -514,40 +638,47 @@ namespace FightLands
             return text;
         }
 
-        public Microsoft.Xna.Framework.Graphics.Texture2D getMinimap()
+        public Microsoft.Xna.Framework.Graphics.Texture2D getMinimap(Point resolution)
         {
-            //float[,] waterChanceValues = waterChanceNoise.getValues(new Point(200, 200), -new Vector2(width,height)/2f, new Vector2(width, height));
-            //float[,] mountainChanceValues = mountainChanceNoise.getValues(new Point(200, 200), -new Vector2(width,height)/2f, new Vector2(width, height));
-            //float[,] mountainChainValues = mountainChainNoise.getValues(new Point(200, 200), -new Vector2(width,height)/2f, new Vector2(width, height));
-            //float[,] treeChanceValues = treeChanceNoise.getValues(new Point(200, 200), -new Vector2(width,height)/2f, new Vector2(width, height));
+            float[,] waterChanceValues = waterChanceNoise.getValues(resolution, -new Vector2(width,height)/2f, new Vector2(width, height));
+            float[,] mountainChanceValues = mountainChanceNoise.getValues(resolution, -new Vector2(width,height)/2f, new Vector2(width, height));
+            float[,] mountainChainValues = mountainChainNoise.getValues(resolution, -new Vector2(width,height)/2f, new Vector2(width, height));
+            float[,] treeChanceValues = treeChanceNoise.getValues(resolution, -new Vector2(width,height)/2f, new Vector2(width, height));
 
-            Color[] colorArray = new Color[terrainEvaluationPrecision.X * terrainEvaluationPrecision.Y];
+            Color[] colorArray = new Color[resolution.X*resolution.Y];
 
-            bool[,] towns = new bool[terrainEvaluationPrecision.X, terrainEvaluationPrecision.Y];
+            bool[,] towns = new bool[resolution.X, resolution.Y];
 
+            //upper left corner coordinates
             int x, y;
 
             Vector2 tempPos;
             for (int i = 0; i < townList.Count; i++)
             {
+                // upper left corner position
                 tempPos = townList[i].position + new Vector2(width, height) * 0.5f - new Vector2(50f,50f);
-                x = (int)MathHelper.Clamp(((tempPos.X / width) * terrainEvaluationPrecision.X),0,(int)terrainEvaluationPrecision.X);
-                y = (int)MathHelper.Clamp(((tempPos.Y/ height) * terrainEvaluationPrecision.Y), 0, (int)terrainEvaluationPrecision.Y);
+                // upper left corner coords in texture
+                x = (int)MathHelper.Clamp(((tempPos.X / width) * resolution.X), 0, resolution.X);
+                y = (int)MathHelper.Clamp(((tempPos.Y / height) * resolution.Y), 0, resolution.Y);
 
                 for(int xx = 0;xx < 10;xx++)
                     for (int yy = 0; yy < 10; yy++)
                     {
-                        if(x + xx < terrainEvaluationPrecision.X && y + yy < terrainEvaluationPrecision.Y)
+                        if (x + xx < resolution.X && y + yy < resolution.Y)
                             towns[x + xx, y + yy] = true;
                     }
             }
 
             for (int i = 0; i < colorArray.Length; i++)
             {
-                x = i % terrainEvaluationPrecision.X;
-                y = i / terrainEvaluationPrecision.X;
+                x = i % resolution.X;
+                y = i / resolution.X;
 
-                if (towns[x, y])
+                if (x == 0 || x == resolution.X - 1 || y == 0 || y == resolution.Y - 1)
+                {
+                    colorArray[i] = Color.Transparent;
+                }
+                else if (towns[x, y])
                 {
                     colorArray[i] = Color.Orange;
                 }
@@ -569,7 +700,7 @@ namespace FightLands
                 }
             }
 
-            Microsoft.Xna.Framework.Graphics.Texture2D text = new Microsoft.Xna.Framework.Graphics.Texture2D(Graphics.device, terrainEvaluationPrecision.X, terrainEvaluationPrecision.Y);
+            Microsoft.Xna.Framework.Graphics.Texture2D text = new Microsoft.Xna.Framework.Graphics.Texture2D(Graphics.device, resolution.X, resolution.Y);
             text.SetData<Color>(colorArray);
 
             return text;
@@ -651,6 +782,9 @@ namespace FightLands
 
         public override void Update(UpdateState state)
         {
+            if (!isLoaded())
+                return;
+
             //base.Update(state);
             waterWavesPhase += state.elapsedTime;
 
@@ -723,6 +857,9 @@ namespace FightLands
 
         public override void Draw(DrawState state)
         {
+            if (!isLoaded())
+                return;
+
             foreach (Zone zone in zones)
             {
                 if ((zone.position - state.currentCamera.position).Length() < zone.effectRadius + state.currentCamera.diagonal.Length()/2f)

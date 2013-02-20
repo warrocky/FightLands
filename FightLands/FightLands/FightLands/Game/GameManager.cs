@@ -13,13 +13,10 @@ namespace FightLands
         private Game game;
 
         MenuManager menuManager;
+        LandManager landManager;
 
         public gameManagerState gameState;
         public enum gameManagerState { inMenu, inLands, inFight }
-
-        Land land;
-        Camera landCamera;
-        LandActiveBox landActiveBox;
 
         public readonly LocalPlayer player1;
 
@@ -27,9 +24,14 @@ namespace FightLands
             :base(UIWorld)
         {
             this.game = game;
+            
+            // Create managers
             menuManager = new MenuManager(this);
+            landManager = new LandManager(this);
             gameState = gameManagerState.inMenu;
 
+
+            //Create player
             Dictionary<ActionKeyType, Keys> keyMapping = new Dictionary<ActionKeyType,Keys>();
             keyMapping.Add(ActionKeyType.Up, Keys.W);
             keyMapping.Add(ActionKeyType.Down, Keys.S);
@@ -43,20 +45,26 @@ namespace FightLands
         public void StartGame()
         {
             gameState = gameManagerState.inLands;
-            land = new Land(1);
-            landActiveBox = new LandActiveBox(land, world, new Point(600,600));
-            landCamera = landActiveBox.camera;
-            LandCameraControl control = new LandCameraControl(land, landCamera);
-            HumanPlayer human = new HumanPlayer(land);
-            PlayerManager.getPlayer("player1").addControlable(human);
-            control.setAnchor(human);
-            land.addContentRequirer(human);
-            land.addUpdateNode(human);
 
-            MapPreviewer minimap = new MapPreviewer(this.world, land, new Vector2(200f,200f));
-            minimap.position = UserInterfaceManager.getCurrentUpperLeftCorner() + new Vector2(100f,100f);
+            landManager.StartGame();
 
-            landActiveBox.position.X = UserInterfaceManager.getCurrentUpperLeftCorner().X + 200f + 300f;
+            //land = new Land(1);
+            //landActiveBox = new LandActiveBox(land, world, new Point(600,600));
+            //landCamera = landActiveBox.camera;
+            //LandCameraControl control = new LandCameraControl(land, landCamera);
+            //HumanPlayer human = new HumanPlayer(land);
+            //PlayerManager.getPlayer("player1").addControlable(human);
+            //control.setAnchor(human);
+            //land.addContentRequirer(human);
+            //land.addUpdateNode(human);
+
+            //MapPreviewer minimap = new MapPreviewer(this.world, land, new Vector2(200f,200f));
+            //minimap.position = UserInterfaceManager.getCurrentUpperLeftCorner() + new Vector2(100f,100f);
+
+            //landActiveBox.position.X = UserInterfaceManager.getCurrentUpperLeftCorner().X + 200f + 300f;
+
+            //land.loadMap();
+
         }
         public void QuitGame()
         {
@@ -65,8 +73,7 @@ namespace FightLands
 
         public override void Update(UpdateState state)
         {
-            if (gameState == gameManagerState.inLands)
-                land.Update(state);
+
         }
     }
 }

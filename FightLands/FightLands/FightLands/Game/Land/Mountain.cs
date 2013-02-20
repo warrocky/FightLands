@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Threading;
 
 namespace FightLands
 {
@@ -15,7 +16,14 @@ namespace FightLands
         DrawableTexture texture;
         AssetTexture assetTexture;
 
+        bool loadingTexture;
+        Object loadingLock = new Object();
+
         bool textureLoaded;
+        Object textureLoadedLock = new Object();
+
+        Object textureContentLock = new Object();
+        Texture2D textureContent;
 
         public Mountain(int seed, Land world, float radius)
             :base(world)
@@ -32,6 +40,7 @@ namespace FightLands
             texture.size = new Vector2(radius*2f, radius*2f);
             texture.layer = 0.07f;
             textureLoaded = false;
+            loadingTexture = false;
         }
         private Texture2D createTexture()
         {
@@ -147,13 +156,49 @@ namespace FightLands
 
         public void loadTexture()
         {
-            if (!textureLoaded)
+            lock (textureLoadedLock)
             {
-                assetTexture.setContent(createTexture());
-                textureLoaded = true;
+                lock (loadingLock)
+                {
+                    if (!(loadingTexture || textureLoaded))
+                    {
+                        loadingTexture = true;
+                        Thread loader = new Thread(new ThreadStart(startTextureLoad));
+                        loader.Start();
+                    }
+                }
+            }
+        }
+        private void startTextureLoad()
+        {
+            Texture2D text = createTexture();
+
+            lock (textureContentLock)
+            {
+                textureContent = text;
+            }
+
+            lock (textureLoadedLock)
+            {
+                lock (loadingLock)
+                {
+                    textureLoaded = true;
+                    loadingTexture = false;
+                }
             }
         }
 
+        public override void Update(UpdateState state)
+        {
+            lock (textureContentLock)
+            {
+                if (textureContent != null)
+                {
+                    assetTexture.setContent(textureContent);
+                    textureContent = null;
+                }
+            }
+        }
         public override void Draw(DrawState state)
         {
             texture.Draw(state);

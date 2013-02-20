@@ -111,8 +111,11 @@
     <Compile Include="AssetManager\AssetSpriteFont.cs" />
     <Compile Include="AssetManager\AssetTexture.cs" />
     <Compile Include="AssetManager\AssetTextureStrip.cs" />
+    <Compile Include="FrameWorkMechanics\Animation.cs" />
+    <Compile Include="FrameWorkMechanics\LoopingAnimation.cs" />
     <Compile Include="FrameWorkMechanics\MenuEntry.cs" />
     <Compile Include="FrameWorkMechanics\Menu.cs" />
+    <Compile Include="FrameWorkMechanics\Resizable.cs" />
     <Compile Include="GameMechanics\ActiveBox.cs" />
     <Compile Include="GameMechanics\Dummy.cs" />
     <Compile Include="GameMechanics\FightObject.cs" />
@@ -129,8 +132,10 @@
     <Compile Include="Game\Fight\FightWorld.cs" />
     <Compile Include="Game\GameManager.cs" />
     <Compile Include="Game\LandActiveBox.cs" />
+    <Compile Include="Game\LandManager.cs" />
     <Compile Include="Game\Land\Land.cs" />
     <Compile Include="Game\Land\LandCameraControl.cs" />
+    <Compile Include="Game\Land\LandLoadPreviewer.cs" />
     <Compile Include="Game\Land\Mountain.cs" />
     <Compile Include="Game\Land\MountainChain.cs" />
     <Compile Include="Game\Land\Structures\Town.cs" />
