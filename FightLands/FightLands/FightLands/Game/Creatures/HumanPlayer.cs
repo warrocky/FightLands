@@ -6,7 +6,15 @@ using Microsoft.Xna.Framework;
 
 namespace FightLands
 {
-    class HumanPlayer : Human , Controlable, Land.LandContentRequirer, Land.LandUpdateNode
+    class HumanPlayer : Human
+    {
+        public HumanPlayer(Land land)
+            : base(land)
+        {
+
+        }
+    }
+    class LandHumanPlayer : LandHuman , Controlable, Land.LandContentRequirer, Land.LandUpdateNode
     {
         DrawableTexture guy;
 
@@ -21,8 +29,8 @@ namespace FightLands
 
         bool treeInRange;
 
-        public HumanPlayer(Land world)
-            : base(world)
+        public LandHumanPlayer(Land world, HumanPlayer human)
+            : base(world,human)
         {
             guy = new DrawableTexture("whiteSquare", this);
             guy.size.X = 10f;
@@ -109,18 +117,19 @@ namespace FightLands
                     guy.filter = Color.White;
             }
 
-            creaturesInRange = land.findObjectsInArea<LandCreature>(position, 200f);
+            //MOB encountering
+            //creaturesInRange = land.findObjectsInArea<LandCreature>(position, 200f);
 
-            for (int i = 0; i < creaturesInRange.Count; i++)
-            {
-                if (creaturesInRange[i].mobProperties != null && creaturesInRange[i].mobProperties.encountering)
-                {
-                    if ((creaturesInRange[i].position - position).Length() < creaturesInRange[i].mobProperties.encounterRadius + 30f)
-                    {
-                        guy.filter = Color.Red;
-                    }
-                }
-            }
+            //for (int i = 0; i < creaturesInRange.Count; i++)
+            //{
+            //    if (creaturesInRange[i].mobProperties != null && creaturesInRange[i].mobProperties.encountering)
+            //    {
+            //        if ((creaturesInRange[i].position - position).Length() < creaturesInRange[i].mobProperties.encounterRadius + 30f)
+            //        {
+            //            guy.filter = Color.Red;
+            //        }
+            //    }
+            //}
         }
         public override void Draw(DrawState state)
         {
@@ -129,7 +138,7 @@ namespace FightLands
 
         public float LandContentRequirerRadius(Land land)
         {
-            return 20f;
+            return 300f;
         }
         public Vector2 LandContentRequirerPosition(Land land)
         {
@@ -138,7 +147,7 @@ namespace FightLands
 
         public float LandUpdateNodeRadius(Land land)
         {
-            return 50f;
+            return 400f;
         }
         public Vector2 LandUpdateNodePosition(Land land)
         {

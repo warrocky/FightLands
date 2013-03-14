@@ -44,7 +44,7 @@ namespace FightLands
 
             state = LandManagerState.loading;
 
-            land = new Land(1);
+            land = new Land(9);
             //activeBox = new LandActiveBox(land, world, new Point(600, 600));
             //landCamera = activeBox.camera;
 
@@ -58,7 +58,7 @@ namespace FightLands
             //land.addContentRequirer(human);
             //land.addUpdateNode(human);
 
-            minimap = new MapPreviewer(this.world, land, new Vector2(200f, 200f));
+            minimap = new MapPreviewer(this.world, land, new Vector2(400f, 400f));
             minimap.position = UserInterfaceManager.getCurrentLowerLeftCorner() + UserInterfaceManager.getDiagonalOnWorld()/2f + new Vector2(0f,-20f);
 
             minimapLoopAnimation = new LoopingAnimation(world, minimap, minimap.position, minimap.position, minimap.rotation, minimap.rotation, new Vector2(395f,395f), new Vector2(400f,400f), 5f, LoopingAnimation.InterpolationType.Trignometric, true, 0f);
@@ -92,11 +92,13 @@ namespace FightLands
 
                             loadPreviewer = null;
 
-                            activeBox = new LandActiveBox(land, world, new Point(600, 600));
+                            Rectangle activeBoxArea = gameManager.getActiveBoxArea();
+                            activeBox = new LandActiveBox(land, world, new Point(activeBoxArea.Width, activeBoxArea.Height));
                             landCamera = activeBox.camera;
 
                             LandCameraControl control = new LandCameraControl(land, landCamera);
-                            HumanPlayer human = new HumanPlayer(land);
+                            HumanPlayer metaHuman = new HumanPlayer(land);
+                            LandHumanPlayer human = new LandHumanPlayer(land, metaHuman);
 
                             PlayerManager.getPlayer("player1").addControlable(human);
 
@@ -105,7 +107,7 @@ namespace FightLands
                             land.addContentRequirer(human);
                             land.addUpdateNode(human);
 
-                            activeBox.position.X = UserInterfaceManager.getCurrentUpperLeftCorner().X + 200f + 300f;
+                            activeBox.position.X = UserInterfaceManager.getCurrentUpperLeftCorner().X + 200f + activeBoxArea.Width/2;
 
                             this.state = LandManagerState.inland;
                         }

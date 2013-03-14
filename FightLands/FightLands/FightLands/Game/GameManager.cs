@@ -71,6 +71,15 @@ namespace FightLands
             game.Exit();
         }
 
+        public Rectangle getUiLeftColumn()
+        {
+            return new Rectangle(0, 0, 200, Graphics.resolution.Y);
+        }
+        public Rectangle getActiveBoxArea()
+        {
+            return new Rectangle(200, 0, Graphics.resolution.X - 200, Graphics.resolution.Y);
+        }
+
         public override void Update(UpdateState state)
         {
 

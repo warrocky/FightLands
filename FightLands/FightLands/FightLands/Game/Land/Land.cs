@@ -93,6 +93,10 @@ namespace FightLands
         //Content structures
         List<AssetTexture> treeTextures;
 
+        
+        //Life Managers
+        public FactionManager factionManager;
+        
         //dynamic structures
         List<ZoneChangingObject> zoneChanges;
 
@@ -147,13 +151,14 @@ namespace FightLands
             treeChanceNoise = Noise.RegularNoise(width / 4f, 2, rdm.Next());
             treeChanceNoise.filter = (float a, Vector2 b) => (a + 1f) / 2f;
 
-            waterChanceNoise = Noise.RegularNoise(width/2f, 6, rdm.Next());
+            float waterMassesPeriodFactor = (float)rdm.NextDouble() + 0.25f;
+            waterChanceNoise = Noise.RegularNoise(width*waterMassesPeriodFactor, 6, rdm.Next());
             waterChanceNoise.filter = (float a, Vector2 b) => (a + 1f) / 2f;
 
-            waterWavesDistancePeriod = 20f;
-            waterWavesFrameCount = 20;
-            waterWavesTimePeriod = 4f;
-            waterWavesLoop = new Point3(20, 20, 3);
+            waterWavesDistancePeriod = 20f; // Convem que FrameCount divida waterWavesDistancePeriod*waterWavesLoop.X para evitar um salto no loop da sprite.
+            waterWavesFrameCount = 200;
+            waterWavesTimePeriod = 20f;
+            waterWavesLoop = new Point3(10, 20, 3);
             waterWavesNoise = Noise3D.TurbulenceNoise(waterWavesDistancePeriod, 2, waterWavesLoop, rdm.Next());
             waterWavesNoise.filter = (float a, Vector3 b) => (a + 1) / 2f;
 
@@ -177,6 +182,9 @@ namespace FightLands
             townList = new List<Town>();
             mobList = new List<LandCreature>();
 
+
+            //Life managers
+            factionManager = new FactionManager(this);
         }
 
         public bool isBeingLoaded()
@@ -565,7 +573,7 @@ namespace FightLands
                     {
 
                         //Create new mob
-                        mob = new Rat(this, rdm.Next());
+                        mob = new LandRat(this, rdm.Next());
                         mob.position = mobPosition;
                         mobList.Add(mob);
                     }

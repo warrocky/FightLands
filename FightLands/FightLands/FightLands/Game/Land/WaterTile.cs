@@ -9,11 +9,11 @@ namespace FightLands
 {
     class WaterTile : LandObject
     {
-        static int reduceFactor = 1;
+        static int reduceFactor = 2;
         Land land;
         int seed;
-        DrawableTextureStrip texture;
-        AssetTextureStrip waterTexture;
+        DrawableTextureArrayAsStrip texture;
+        AssetTexture[] waterFramesTextures;
         Vector2 size;
 
         bool textureLoaded;
@@ -25,10 +25,6 @@ namespace FightLands
             this.land = land;
             this.seed = seed;
 
-            waterTexture = AssetTextureStrip.createFromAssetTexture(AssetManager.getAssetTexture("whiteSquare"), "waterTile");
-            texture = new DrawableTextureStrip(waterTexture, this);
-            texture.size = size;
-            texture.layer = 0.99f;
             this.size = size;
 
             textureLoaded = false;
@@ -37,23 +33,26 @@ namespace FightLands
         {
             if (!textureLoaded)
             {
-                Texture2D newContent = createTexture();
-                waterTexture.setContent(newContent, new Point((int)size.X/reduceFactor, (int)size.Y/reduceFactor), AssetTextureStrip.StripOrientation.TopToBottom);
+                waterFramesTextures = createTexture();
+                //waterTexture.setContent(newContent, new Point((int)size.X/reduceFactor, (int)size.Y/reduceFactor), AssetTextureStrip.StripOrientation.TopToBottom);
+                texture = new DrawableTextureArrayAsStrip(waterFramesTextures, this);
+                texture.size = size;
 
-                //correct gaps
-                //texture.size.X += 1f;
-                texture.size.Y += 1f;
+                texture.layer = 0.99f;
 
                 textureLoaded = true;
             }
         }
-        private Texture2D createTexture()
+        private AssetTexture[] createTexture()
         {
             int frameCount = land.waterWavesFrameCount;
 
+            AssetTexture[] textures = new AssetTexture[frameCount];
+
             int spriteWidth = (int)size.X/reduceFactor;
             int spriteHeight = (int)size.Y/reduceFactor;
-            Texture2D texture = new Texture2D(Graphics.device, spriteWidth, spriteHeight*frameCount);
+
+
             Random rdm = new Random(seed);
 
             float[,] waterChanceData = land.waterChanceNoise.getValues(new Point(spriteWidth, spriteHeight), position - size / 2f, size);
@@ -66,10 +65,10 @@ namespace FightLands
             waterWaveDataOffset.X = (((int)(position.X - size.X / 2)) % waterWaveDataLengths.X + waterWaveDataLengths.X) % waterWaveDataLengths.X;
             waterWaveDataOffset.Y = (((int)(position.Y - size.Y / 2)) % waterWaveDataLengths.Y + waterWaveDataLengths.Y) % waterWaveDataLengths.Y;
 
-            Color[] colorArray = new Color[texture.Width * texture.Height];
+
 
             float waterChance = land.waterChanceTreshold;
-            int x, y,k;
+            int x, y;
             Color floorColor;
             Color waveColor;
             float normalizedWaterChance;
@@ -89,47 +88,59 @@ namespace FightLands
                     temp = (float)rdm.NextDouble();
                     sandColor[i, j] = Color.Lerp(Color.Lerp(Color.LightYellow, Color.SaddleBrown, temp * temp), Color.Transparent, 1f - (rootedWaterChance) * (float)rdm.NextDouble());
                 }
-            for (int i = 0; i < texture.Width * texture.Height; i++)
+
+            int offsetXPerFrame = waterWaveDataLengths.X/frameCount;
+            for (int k = 0; k < frameCount; k++)
             {
-                x = i % texture.Width;
-                y = (i / texture.Width)%spriteHeight;
-                k = (i / texture.Width) / spriteHeight;
+                Texture2D texture = new Texture2D(Graphics.device, spriteWidth, spriteHeight);
+                Color[] colorArray = new Color[texture.Width * texture.Height];
 
-                if (waterChanceData[x, y] > waterChance)
+
+                for (int i = 0; i < texture.Width * texture.Height; i++)
                 {
+                    x = i % texture.Width;
+                    y = i / texture.Width;
 
-                    waterWaveCoordinates.X = ((waterWaveDataOffset.X + x*reduceFactor + k*2) % waterWaveDataLengths.X + waterWaveDataLengths.X) % waterWaveDataLengths.X;
-                    waterWaveCoordinates.Y = ((waterWaveDataOffset.Y + y*reduceFactor) % waterWaveDataLengths.Y + waterWaveDataLengths.Y) % waterWaveDataLengths.Y;
+                    if (waterChanceData[x, y] > waterChance)
+                    {
 
-                    normalizedWaterChance = (waterChanceData[x, y] - waterChance) / (1f - waterChance);
-                    rootedWaterChance = (float)Math.Sqrt(normalizedWaterChance);
-                    rootedWaveValue = (float)Math.Sqrt(MathHelper.SCurveInterpolation(0, 1, waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k]));
-                    //curvedWaterChance = MathHelper.SCurveInterpolation(0, 1, rootedWaterChance);
+                        waterWaveCoordinates.X = ((waterWaveDataOffset.X + x * reduceFactor + offsetXPerFrame*k) % waterWaveDataLengths.X + waterWaveDataLengths.X) % waterWaveDataLengths.X;
+                        waterWaveCoordinates.Y = ((waterWaveDataOffset.Y + y * reduceFactor) % waterWaveDataLengths.Y + waterWaveDataLengths.Y) % waterWaveDataLengths.Y;
 
-                    //depth meter
-                    if(rootedWaterChance < shore_ocean)
-                        floorColor = Color.Lerp(sandColor[x,y], Color.Blue, (rootedWaterChance / shore_ocean)*(1f +  0.5f * waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k] * ((float)rdm.NextDouble()*0.5f + 0.5f)));
+                        normalizedWaterChance = (waterChanceData[x, y] - waterChance) / (1f - waterChance);
+                        rootedWaterChance = (float)Math.Sqrt(normalizedWaterChance);
+                        rootedWaveValue = (float)Math.Sqrt(MathHelper.SCurveInterpolation(0, 1, waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k]));
+                        //curvedWaterChance = MathHelper.SCurveInterpolation(0, 1, rootedWaterChance);
+
+                        //depth meter
+                        if (rootedWaterChance < shore_ocean)
+                            floorColor = Color.Lerp(sandColor[x, y], Color.Blue, (rootedWaterChance / shore_ocean) * (1f + 0.5f * waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k]));
+                        else
+                            floorColor = Color.Lerp(Color.Blue, Color.Black, (rootedWaterChance - shore_ocean) / (1f - shore_ocean) * (1f + 0.2f * waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k] * ((float)rdm.NextDouble() * 0.4f + 0.6f)));
+
+                        waveColor = Color.Lerp(floorColor, Color.Black, waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k] * rootedWaterChance - ((float)rdm.NextDouble()*0.2f + 0.8f) * (1f - rootedWaterChance) * 0.1f + 0.1f);
+
+                        colorArray[i] = waveColor;//Color.Lerp(floorColor, waveColor, normalizedWaterChance);
+                    }
                     else
-                        floorColor = Color.Lerp(Color.Blue, Color.Black, (rootedWaterChance - shore_ocean) / (1f - shore_ocean) * (1f + 0.2f * waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k] * ((float)rdm.NextDouble() * 0.5f + 0.5f)));
-
-                    waveColor = Color.Lerp(floorColor, Color.Black, waterWaveData[waterWaveCoordinates.X, waterWaveCoordinates.Y, k]*rootedWaterChance - (float)rdm.NextDouble()*(1f - rootedWaterChance)*0.1f + 0.1f);
-
-                    colorArray[i] = waveColor;//Color.Lerp(floorColor, waveColor, normalizedWaterChance);
+                    {
+                        colorArray[i] = Color.Transparent;
+                    }
                 }
-                else
-                {
-                    colorArray[i] = Color.Transparent;
-                }
+
+                texture.SetData<Color>(colorArray);
+                textures[k] = new AssetTexture(texture, "waterTileFrame" + k);
             }
 
-            texture.SetData<Color>(colorArray);
-
-            return texture;
+            return textures;
         }
         public override void Update(UpdateState state)
         {
-            texture.period = land.waterWavesTimePeriod;
-            texture.Phase = land.waterWavesPhase;
+            if (textureLoaded)
+            {
+                texture.period = land.waterWavesTimePeriod;
+                texture.Phase = land.waterWavesPhase;
+            }
             base.Update(state);
         }
         public override void Draw(DrawState state)

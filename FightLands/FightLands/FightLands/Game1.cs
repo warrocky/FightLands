@@ -25,7 +25,7 @@ namespace FightLands
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
-            resolution = new Point(800, 600);
+            resolution = new Point(1024, 768);
             graphics.PreferredBackBufferWidth = resolution.X;
             graphics.PreferredBackBufferHeight = resolution.Y;
             Content.RootDirectory = "Content";

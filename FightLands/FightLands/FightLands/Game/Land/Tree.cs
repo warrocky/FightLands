@@ -35,7 +35,7 @@ namespace FightLands
             physicalProperties = new LandPhysicalProperties();
             physicalProperties.activelyColliding = false;
             physicalProperties.collisionType = LandCollisionTypes.Static;
-            physicalProperties.radius = radius*0.7f;
+            physicalProperties.radius = 2f;
         }
 
         public override void Draw(DrawState state)
@@ -49,10 +49,6 @@ namespace FightLands
             oscilation += state.elapsedTime/4f;
             drawTexture.position.X = (float)Math.Cos(oscilation) * 2f;
             shadowTexture.position = drawTexture.position - new Vector2(1f, -1f)*(radius/2f + 1f)*0.3f;
-
-            drawTexture.rotation += state.elapsedTime/8f;
-
-            drawTexture.filter = Color.Lerp(drawTexture.filter,Color.White,state.elapsedTime);
         }
 
 
@@ -175,11 +171,6 @@ namespace FightLands
         public override bool AuthorizeCollision(LandObject collider)
         {
             return true;
-        }
-
-        public override void CollideEffect(LandObject collider)
-        {
-            drawTexture.filter = Color.Red;
         }
     }
 }

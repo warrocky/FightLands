@@ -14,7 +14,7 @@ namespace FightLands
         public MapPreviewer(World world, Land land, Vector2 size)
             :base(world)
         {
-            Texture2D textureBase = land.getMinimap(new Point(200,200));
+            Texture2D textureBase = land.getMinimap(new Point((int)size.X,(int)size.Y));
 
             AssetTexture text = new AssetTexture(textureBase, "minimapTexture");
 

@@ -129,6 +129,9 @@
     <Compile Include="Game\Creatures\HumanPlayer.cs" />
     <Compile Include="Game\Creatures\LandCreature.cs" />
     <Compile Include="Game\Creatures\Rat.cs" />
+    <Compile Include="Game\Encounter.cs" />
+    <Compile Include="Game\Factions\Faction.cs" />
+    <Compile Include="Game\Factions\FactionManager.cs" />
     <Compile Include="Game\Fight\FightWorld.cs" />
     <Compile Include="Game\GameManager.cs" />
     <Compile Include="Game\LandActiveBox.cs" />
@@ -145,6 +148,7 @@
     <Compile Include="Game\MapPreviewer.cs" />
     <Compile Include="Game\MenuManager.cs" />
     <Compile Include="GraphicsComponent\DrawableText.cs" />
+    <Compile Include="GraphicsComponent\DrawableTextureArrayAsStrip.cs" />
     <Compile Include="GraphicsComponent\DrawableTextureStrip.cs" />
     <Compile Include="GraphicsComponent\DrawCall.cs" />
     <Compile Include="GraphicsComponent\DrawState.cs" />

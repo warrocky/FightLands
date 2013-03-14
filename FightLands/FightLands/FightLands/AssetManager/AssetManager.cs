@@ -136,9 +136,32 @@ namespace FightLands
             throw new Exception("No such AssetSpriteFont in the AssetManager, label: \"" + label + "\".");
         }
 
+        private static void createCircleTexture()
+        {
+            //Load whiteCircle100x100
+            Texture2D texture = new Texture2D(Graphics.device, 100, 100);
+            Color[] array = new Color[100 * 100];
+            int x, y;
+            float dist;
+            for (int i = 0; i < array.Length; i++)
+            {
+                x = i % 100;
+                y = i / 100;
 
+                dist = (float)Math.Sqrt((x - 50) * (x - 50) + (y-50) * (y-50));
+
+                if (dist > 49)
+                    array[i] = Color.Transparent;
+                else
+                    array[i] = Color.White;
+            }
+            texture.SetData<Color>(array);
+
+            CreateAssetTexture("whiteCircle100x100", texture);
+        }
         public static void LoadContent()
         {
+            //Load whiteSquare
             Texture2D texture = new Texture2D(Graphics.device, 100, 100);
             Color[] array = new Color[100 * 100];
             for (int i = 0; i < array.Length; i++)
@@ -146,6 +169,9 @@ namespace FightLands
             texture.SetData<Color>(array);
 
             CreateAssetTexture("whiteSquare", texture);
+
+            createCircleTexture();
+
         }
     }
 }

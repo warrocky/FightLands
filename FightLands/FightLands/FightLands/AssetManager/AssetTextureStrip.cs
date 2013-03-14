@@ -170,4 +170,74 @@ namespace FightLands
             return strip;
         }
     }
+
+    //Obselete, non-necessary
+    class AssetTextureInstanceStrip
+    {
+        public readonly String name;
+
+        Texture2D[] _textures;
+        public Texture2D[] textures
+        {
+            set { setContent(value); }
+            get { return _textures; }
+        }
+
+        Vector2 _center;
+        public Vector2 center
+        {
+            get { return _center; }
+        }
+
+
+        Point _size;
+        public int width
+        {
+            get { return _size.X; }
+        }
+        public int height
+        {
+            get { return _size.Y; }
+        }
+
+        public Point size
+        {
+            get { return _size; }
+        }
+        
+        int _length;
+        public int length
+        {
+            get { return _length; }
+        }
+
+        public AssetTextureInstanceStrip(String name, Texture2D[] content, Point frameSize)
+        {
+            this.name = name;
+            this._textures = content;
+            _size = frameSize;
+
+            _length = content.Length;
+        }
+
+        public void setContent(Texture2D[] newContent)
+        {
+            _textures = newContent;
+
+            _length = newContent.Length;
+        }
+
+        public AssetTextureStrip createAssetCopy(String name)
+        {
+            throw new NotImplementedException();
+            //Texture2D contentCopy = new Texture2D(_texture.GraphicsDevice, _texture.Width, _texture.Height);
+
+            //Color[] content = new Color[_texture.Width * _texture.Height];
+            //_texture.GetData<Color>(content);
+            //contentCopy.SetData<Color>(content);
+
+            //AssetTextureStrip copy = new AssetTextureStrip(name,contentCopy, _orientation, _size);
+            //return copy;
+        }
+    }
 }

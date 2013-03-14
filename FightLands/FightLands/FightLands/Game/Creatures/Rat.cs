@@ -6,21 +6,37 @@ using Microsoft.Xna.Framework;
 
 namespace FightLands
 {
-    class Rat : LandCreature
+    class Rat : Creature
     {
+        public Rat(Land land)  
+            :base(land)
+        {
 
+        }
+    }
+    class LandRat : LandCreature
+    {
         DrawableTexture texture;
 
-        public Rat(Land land, int seed)
-            : base(land)
+        public LandRat(Land land, Rat rat, int seed)
+            : base(rat, land)
         {
             Random rdm = new Random(seed);
+
             texture = new DrawableTexture("whiteSquare", this);
             texture.size = new Vector2(10f, 10f);
             texture.filter = Color.Black;
             texture.rotation = (float)(rdm.NextDouble() * Math.PI * 2f);
+        }
+        public LandRat(Land land, int seed)
+            :base(new Rat(land), land)
+        {
+            Random rdm = new Random(seed);
 
-            mobProperties = new MobProperties(20f, true);
+            texture = new DrawableTexture("whiteSquare", this);
+            texture.size = new Vector2(10f, 10f);
+            texture.filter = Color.Black;
+            texture.rotation = (float)(rdm.NextDouble() * Math.PI * 2f);
         }
         public override void Draw(DrawState state)
         {

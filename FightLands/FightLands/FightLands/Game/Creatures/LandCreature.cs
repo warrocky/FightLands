@@ -7,37 +7,25 @@ namespace FightLands
 {
     class LandCreature : LandObject
     {
-        public MobProperties mobProperties;
+        Creature creature;
+        Encounter encounterTrigger;
 
-        public LandCreature(Land land)
+        public LandCreature(Creature creatur, Land land)
             :base(land)
         {
 
+            encounterTrigger = new Encounter(this, land);
         }
-    }
 
-    class MobProperties
-    {
-        public float encounterRadius;
-        public bool encountering;
-
-        public MobProperties(float radius, bool encountering)
+        public override void destroy()
         {
-            this.encountering = encountering;
-            this.encounterRadius = radius;
+            encounterTrigger.destroy();
+            base.destroy();
         }
-    }
 
-    class Encounter : LandObject
-    {
-        public float radius;
-        public LandCreature creature;
-
-        public Encounter(Land land, LandCreature creature, float radius)
-            :base(land)
+        public virtual bool authorizeEncounter(LandCreature boogie)
         {
-            this.creature = creature;
-            this.radius = radius;
+            return creature.checkIfAgressiveTowards(boogie.creature);
         }
     }
 }
