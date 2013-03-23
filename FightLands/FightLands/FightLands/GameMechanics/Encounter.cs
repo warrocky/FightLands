@@ -13,6 +13,9 @@ namespace FightLands
 
         DrawableTexture Dummy;
 
+        public delegate void EncounterTriggered(LandCreature creatureEncountered);
+        public event EncounterTriggered encounterHandlers;
+
         public Encounter(LandCreature anchor, Land land)
             : base(land)
         {
@@ -36,7 +39,7 @@ namespace FightLands
 
         public override bool AuthorizeCollision(LandObject collider)
         {
-            if (collider is Encounter)
+            if (anchor.creature.alive && collider is Encounter)
                 return true;
             else
                 return false;
@@ -44,7 +47,13 @@ namespace FightLands
 
         public override void CollideEffect(LandObject collider)
         {
-            Dummy.filter = Color.Lerp(Color.Red,Color.Transparent, 0.5f);
+            if (collider is Encounter)
+            {
+                Dummy.filter = Color.Lerp(Color.Red, Color.Transparent, 0.5f);
+
+                if (encounterHandlers != null)
+                    encounterHandlers(((Encounter)collider).anchor);
+            }
         }
 
         public override void Draw(DrawState state)

@@ -38,6 +38,8 @@ namespace FightLands.GraphicsComponent
                 drawCalls[i].Render(state);
             state.spriteBatch.End();
             drawCalls.Clear();
+
+            subBatchs.Clear();
         }
     }
 }

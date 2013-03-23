@@ -7,10 +7,14 @@ namespace FightLands
 {
     class FightObject : GameObject
     {
+        public FightWorld fight
+        {
+            get { return (FightWorld)world; }
+        }
+
         public FightObject(FightWorld world)
             : base(world)
         {
-
         }
     }
 }

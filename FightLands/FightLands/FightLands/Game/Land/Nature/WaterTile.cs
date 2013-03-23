@@ -4,25 +4,30 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Threading;
 
 namespace FightLands
 {
     class WaterTile : LandObject
     {
         static int reduceFactor = 2;
-        Land land;
         int seed;
         DrawableTextureArrayAsStrip texture;
         AssetTexture[] waterFramesTextures;
         Vector2 size;
 
+
+        bool loadingTexture;
+        Object loadingLock = new Object();
+
         bool textureLoaded;
+        Object textureLoadedLock = new Object();
+
 
         public WaterTile(Vector2 position, Vector2 size, Land land, int seed)
             : base(land)
         {
             this.position = position;
-            this.land = land;
             this.seed = seed;
 
             this.size = size;
@@ -31,16 +36,37 @@ namespace FightLands
         }
         public void loadTexture()
         {
-            if (!textureLoaded)
+            lock (textureLoadedLock)
             {
-                waterFramesTextures = createTexture();
-                //waterTexture.setContent(newContent, new Point((int)size.X/reduceFactor, (int)size.Y/reduceFactor), AssetTextureStrip.StripOrientation.TopToBottom);
-                texture = new DrawableTextureArrayAsStrip(waterFramesTextures, this);
-                texture.size = size;
+                lock (loadingLock)
+                {
+                    if (!(textureLoaded || loadingTexture))
+                    {
 
-                texture.layer = 0.99f;
+                        loadingTexture = true;
+                        Thread loader = new Thread(new ThreadStart(startTextureLoad));
+                        loader.Start();
+                    }
+                }
+            }
+        }
+        private void startTextureLoad()
+        {
+            waterFramesTextures = createTexture();
+            //waterTexture.setContent(newContent, new Point((int)size.X/reduceFactor, (int)size.Y/reduceFactor), AssetTextureStrip.StripOrientation.TopToBottom);
+            texture = new DrawableTextureArrayAsStrip(waterFramesTextures, this);
+            texture.size = size;
 
-                textureLoaded = true;
+            texture.layer = 0.99f;
+
+
+            lock (textureLoadedLock)
+            {
+                lock (loadingLock)
+                {
+                    textureLoaded = true;
+                    loadingTexture = false;
+                }
             }
         }
         private AssetTexture[] createTexture()
@@ -89,7 +115,7 @@ namespace FightLands
                     sandColor[i, j] = Color.Lerp(Color.Lerp(Color.LightYellow, Color.SaddleBrown, temp * temp), Color.Transparent, 1f - (rootedWaterChance) * (float)rdm.NextDouble());
                 }
 
-            int offsetXPerFrame = waterWaveDataLengths.X/frameCount;
+            int offsetXPerFrame = waterWaveDataLengths.X/frameCount; // <------------------------------------ WATER DISPLACEMENT FACTOR
             for (int k = 0; k < frameCount; k++)
             {
                 Texture2D texture = new Texture2D(Graphics.device, spriteWidth, spriteHeight);
@@ -104,7 +130,7 @@ namespace FightLands
                     if (waterChanceData[x, y] > waterChance)
                     {
 
-                        waterWaveCoordinates.X = ((waterWaveDataOffset.X + x * reduceFactor + offsetXPerFrame*k) % waterWaveDataLengths.X + waterWaveDataLengths.X) % waterWaveDataLengths.X;
+                        waterWaveCoordinates.X = ((waterWaveDataOffset.X + x * reduceFactor) % waterWaveDataLengths.X + waterWaveDataLengths.X) % waterWaveDataLengths.X;
                         waterWaveCoordinates.Y = ((waterWaveDataOffset.Y + y * reduceFactor) % waterWaveDataLengths.Y + waterWaveDataLengths.Y) % waterWaveDataLengths.Y;
 
                         normalizedWaterChance = (waterChanceData[x, y] - waterChance) / (1f - waterChance);
@@ -145,9 +171,12 @@ namespace FightLands
         }
         public override void Draw(DrawState state)
         {
-            if (textureLoaded)
+            lock (textureLoadedLock)
             {
-                texture.Draw(state);
+                if (textureLoaded)
+                {
+                    texture.Draw(state);
+                }
             }
         }
     }

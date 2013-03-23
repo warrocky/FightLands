@@ -25,23 +25,29 @@ namespace FightLands
         bool rotateRight;
 
         public List<Town> townsInRadius;
-        public List<LandCreature> creaturesInRange;
 
-        bool treeInRange;
+        public GameManager gameManager;
 
-        public LandHumanPlayer(Land world, HumanPlayer human)
+        public LandHumanPlayer(Land world, HumanPlayer human, GameManager gameManager)
             : base(world,human)
         {
+            this.gameManager = gameManager;
             guy = new DrawableTexture("whiteSquare", this);
             guy.size.X = 10f;
             guy.size.Y = 10f;
+
+            encounterTrigger.encounterHandlers += CreatureEncountered;
 
             physicalProperties = new LandPhysicalProperties();
             physicalProperties.activelyColliding = true;
             physicalProperties.radius = 10f;
             physicalProperties.collisionType = LandCollisionTypes.Solid;
         }
-
+        public void CreatureEncountered(LandCreature otherCreature)
+        {
+            movingSpeed = 0f;
+            gameManager.StartFight(creature, otherCreature.creature, position);
+        }
         public void Interact(PlayerKeyboard actionKeyboard)
         {
             if (actionKeyboard.keyboard[ActionKeyType.Up].Pressed)
@@ -104,18 +110,11 @@ namespace FightLands
             //Town Detection and Reaction
             townsInRadius  = land.findObjectsInArea<Town>(position, 200f);
 
-            if (treeInRange)
-            {
-                guy.filter = Color.Green;
-                treeInRange = false;
-            }
+
+            if (townsInRadius.Count != 0)
+                guy.filter = Color.Cyan;
             else
-            {
-                if (townsInRadius.Count != 0)
-                    guy.filter = Color.Cyan;
-                else
-                    guy.filter = Color.White;
-            }
+                guy.filter = Color.White;
 
             //MOB encountering
             //creaturesInRange = land.findObjectsInArea<LandCreature>(position, 200f);

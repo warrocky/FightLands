@@ -28,8 +28,8 @@ namespace FightLands
             texture.filter = Color.Black;
             texture.rotation = (float)(rdm.NextDouble() * Math.PI * 2f);
         }
-        public LandRat(Land land, int seed)
-            :base(new Rat(land), land)
+        public LandRat(Land land, int seed, Rat creature)
+            :base(creature, land)
         {
             Random rdm = new Random(seed);
 

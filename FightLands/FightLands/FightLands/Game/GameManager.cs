@@ -14,6 +14,7 @@ namespace FightLands
 
         MenuManager menuManager;
         LandManager landManager;
+        FightManager fightManager;
 
         public gameManagerState gameState;
         public enum gameManagerState { inMenu, inLands, inFight }
@@ -28,6 +29,7 @@ namespace FightLands
             // Create managers
             menuManager = new MenuManager(this);
             landManager = new LandManager(this);
+            fightManager = new FightManager(this);
             gameState = gameManagerState.inMenu;
 
 
@@ -40,6 +42,10 @@ namespace FightLands
             keyMapping.Add(ActionKeyType.Space, Keys.Space);
             player1 = new LocalPlayer(keyMapping);
             PlayerManager.addPlayer(player1, "player1");
+
+
+            //UserInterfaceManager.createNewUserInterfaceArea(new Vector2(Graphics.resolution.X - 200, Graphics.resolution.Y), new Vector2((Graphics.resolution.X/2f - 200f)/2f, 0), "activebox");
+            UserInterfaceManager.createNewUserInterfaceArea(new Rectangle(200, 0, Graphics.resolution.X - 200, Graphics.resolution.Y), "activebox");
         }
 
         public void StartGame()
@@ -66,6 +72,17 @@ namespace FightLands
             //land.loadMap();
 
         }
+        public void StartFight(Creature creature1, Creature creature2, Vector2 worldPosition)
+        {
+            gameState = gameManagerState.inFight;
+            landManager.StartFight();
+            fightManager.StartFight(creature1, creature2, landManager.land, worldPosition);
+        }
+        public void FightEnded()
+        {
+            gameState = gameManagerState.inLands;
+            landManager.ReturnFromFight();
+        }
         public void QuitGame()
         {
             game.Exit();
@@ -77,7 +94,7 @@ namespace FightLands
         }
         public Rectangle getActiveBoxArea()
         {
-            return new Rectangle(200, 0, Graphics.resolution.X - 200, Graphics.resolution.Y);
+            return UserInterfaceManager.getUserInterfaceArea("activebox").getRectangle();
         }
 
         public override void Update(UpdateState state)

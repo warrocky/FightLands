@@ -7,13 +7,14 @@ namespace FightLands
 {
     class LandCreature : LandObject
     {
-        Creature creature;
-        Encounter encounterTrigger;
+        public Creature creature;
+        public Encounter encounterTrigger;
 
-        public LandCreature(Creature creatur, Land land)
+        public LandCreature(Creature creature, Land land)
             :base(land)
         {
-
+            this.creature = creature;
+            creature.landCreature = this;
             encounterTrigger = new Encounter(this, land);
         }
 

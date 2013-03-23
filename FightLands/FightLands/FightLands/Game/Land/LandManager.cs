@@ -10,7 +10,7 @@ namespace FightLands
     {
         GameManager gameManager;
 
-        Land land;
+        public Land land;
         LandActiveBox activeBox;
         Camera landCamera;
 
@@ -44,7 +44,7 @@ namespace FightLands
 
             state = LandManagerState.loading;
 
-            land = new Land(9);
+            land = new Land(14);
             //activeBox = new LandActiveBox(land, world, new Point(600, 600));
             //landCamera = activeBox.camera;
 
@@ -68,6 +68,16 @@ namespace FightLands
             land.loadMap();
             loadPreviewer = new LandLoadPreviewer(world, land);
             loadPreviewer.position = new Vector2(0f, 220f);
+        }
+        public void StartFight()
+        {
+            activeBox.reDrawing = false;
+            state = LandManagerState.infight;
+        }
+        public void ReturnFromFight()
+        {
+            activeBox.reDrawing = true;
+            state = LandManagerState.inland;
         }
 
         public override void Update(UpdateState state)
@@ -98,7 +108,7 @@ namespace FightLands
 
                             LandCameraControl control = new LandCameraControl(land, landCamera);
                             HumanPlayer metaHuman = new HumanPlayer(land);
-                            LandHumanPlayer human = new LandHumanPlayer(land, metaHuman);
+                            LandHumanPlayer human = new LandHumanPlayer(land, metaHuman, gameManager);
 
                             PlayerManager.getPlayer("player1").addControlable(human);
 
@@ -107,7 +117,7 @@ namespace FightLands
                             land.addContentRequirer(human);
                             land.addUpdateNode(human);
 
-                            activeBox.position.X = UserInterfaceManager.getCurrentUpperLeftCorner().X + 200f + activeBoxArea.Width/2;
+                            activeBox.position = UserInterfaceManager.getUserInterfaceArea("activebox").getCenter();
 
                             this.state = LandManagerState.inland;
                         }
@@ -120,15 +130,7 @@ namespace FightLands
         }
         public override void Draw(DrawState state)
         {
-            switch (this.state)
-            {
-                case LandManagerState.loading:
-                    background.Draw(state);
-                    break;
-                case LandManagerState.inland:
-                    background.Draw(state);
-                    break;
-            }
+            background.Draw(state);
         }
     }
 }

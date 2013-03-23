@@ -16,6 +16,7 @@ namespace FightLands
 
         public readonly Camera camera;
         public readonly DrawableTexture texture;
+        public bool reDrawing;
 
         /// <summary>
         /// The size in pixels of the visual element of the ActiveBox.
@@ -36,6 +37,7 @@ namespace FightLands
             currentID++;
             ID = currentID;
             this.camera = camera;
+            this.reDrawing = true;
             AssetTexture textureAsset = AssetManager.CreateAssetTexture("ActiveBoxText" + ID, camera.backbuffer);
             texture = new DrawableTexture(textureAsset , this);
         }
@@ -51,13 +53,16 @@ namespace FightLands
         {
             currentID++;
             ID = currentID;
+            reDrawing = true;
             this.camera = new Camera(cameraWidth, cameraHeight, targetWorld);
             AssetTexture textureAsset = AssetManager.CreateAssetTexture("ActiveBoxText" + ID, camera.backbuffer);
             texture = new DrawableTexture(textureAsset, this);
         }
         public override void Draw(DrawState state)
         {
-            camera.Draw(state);
+            if (reDrawing)
+                camera.Draw(state);
+
             texture.Draw(state);
         }
     }

@@ -156,9 +156,9 @@ namespace FightLands
             waterChanceNoise.filter = (float a, Vector2 b) => (a + 1f) / 2f;
 
             waterWavesDistancePeriod = 20f; // Convem que FrameCount divida waterWavesDistancePeriod*waterWavesLoop.X para evitar um salto no loop da sprite.
-            waterWavesFrameCount = 200;
-            waterWavesTimePeriod = 20f;
-            waterWavesLoop = new Point3(10, 20, 3);
+            waterWavesFrameCount = 50;
+            waterWavesTimePeriod = 4f;
+            waterWavesLoop = new Point3(20, 20, 3);
             waterWavesNoise = Noise3D.TurbulenceNoise(waterWavesDistancePeriod, 2, waterWavesLoop, rdm.Next());
             waterWavesNoise.filter = (float a, Vector3 b) => (a + 1) / 2f;
 
@@ -573,7 +573,8 @@ namespace FightLands
                     {
 
                         //Create new mob
-                        mob = new LandRat(this, rdm.Next());
+                        Rat rattie = new Rat(this);
+                        mob = new LandRat(this, rdm.Next(),rattie);
                         mob.position = mobPosition;
                         mobList.Add(mob);
                     }
